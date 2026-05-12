@@ -10,6 +10,7 @@ const cors = require('cors');
 const fs = require('fs');
 const path = require('path');
 const { run, get, all, initDB } = require('./database');
+const supabase = require('./supabase');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 
 const app = express();
@@ -34,6 +35,10 @@ app.get('/api/health', (req, res) => {
 
 // ── Database Initialization ────────────────────────────────
 async function startApp() {
+  if (process.env.SUPABASE_URL) {
+    console.log("✅ Supabase Cloud Engine: Active.");
+    return;
+  }
   try {
     await initDB();
     console.log("✅ Database Ready.");
@@ -50,8 +55,15 @@ async function authMiddleware(req, res, next) {
   const token = header.split(' ')[1];
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
-    const user = await get('SELECT * FROM users WHERE email = ?', [decoded.email]);
-    if (!user) return res.status(401).json({ error: 'User not found' });
+    
+    // Check Supabase for user
+    const { data: user, error } = await supabase
+      .from('users')
+      .select('*')
+      .eq('email', decoded.email)
+      .single();
+
+    if (error || !user) return res.status(401).json({ error: 'User not found' });
     req.user = user;
     next();
   } catch (err) {
@@ -92,22 +104,44 @@ RESPONSE STRUCTURE:
 app.post('/api/signup', async (req, res) => {
   try {
     const { name, email, password, industry } = req.body;
-    const existing = await get('SELECT * FROM users WHERE email = ?', [email]);
+    
+    // Check existing
+    const { data: existing } = await supabase.from('users').select('*').eq('email', email).single();
     if (existing) return res.status(409).json({ error: 'Email registered' });
+
     const hashedPassword = await bcrypt.hash(password, 10);
     const userId = Date.now().toString(36);
-    await run(`INSERT INTO users (id, name, email, password, industry, createdAt, streak, totalMinutes) VALUES (?, ?, ?, ?, ?, ?, 1, 0)`,
-      [userId, name, email, hashedPassword, industry || 'Technology', new Date().toISOString()]);
+    
+    const { error } = await supabase.from('users').insert([{
+      id: userId,
+      name,
+      email,
+      password: hashedPassword,
+      industry: industry || 'Technology',
+      createdAt: new Date().toISOString(),
+      streak: 1,
+      totalMinutes: 0
+    }]);
+
+    if (error) throw error;
+
     const token = jwt.sign({ email }, JWT_SECRET, { expiresIn: '7d' });
     res.json({ token, user: { id: userId, name, email, industry } });
-  } catch (err) { res.status(500).json({ error: 'Signup failed' }); }
+  } catch (err) { 
+    console.error("Signup Error:", err.message);
+    res.status(500).json({ error: 'Signup failed' }); 
+  }
 });
 
 app.post('/api/login', async (req, res) => {
   try {
     const { email, password } = req.body;
-    const user = await get('SELECT * FROM users WHERE email = ?', [email]);
-    if (!user || !(await bcrypt.compare(password, user.password))) return res.status(401).json({ error: 'Invalid credentials' });
+    const { data: user, error } = await supabase.from('users').select('*').eq('email', email).single();
+    
+    if (error || !user || !(await bcrypt.compare(password, user.password))) {
+      return res.status(401).json({ error: 'Invalid credentials' });
+    }
+
     const token = jwt.sign({ email }, JWT_SECRET, { expiresIn: '7d' });
     res.json({ token, user });
   } catch (err) { res.status(500).json({ error: 'Login failed' }); }
@@ -116,11 +150,20 @@ app.post('/api/login', async (req, res) => {
 app.get('/api/user/profile', authMiddleware, async (req, res) => {
   const userId = req.user.id;
   try {
-    const user = await get('SELECT id, name, email, industry, createdAt FROM users WHERE id = ?', [userId]);
-    if (!user) return res.status(404).json({ error: 'User not found' });
+    const { data: user, error } = await supabase
+      .from('users')
+      .select('id, name, email, industry, createdAt')
+      .eq('id', userId)
+      .single();
+
+    if (error || !user) return res.status(404).json({ error: 'User not found' });
     
-    // Fetch user's recent journals to show in Gratitude Vault
-    const journals = await all('SELECT content FROM journals WHERE userId = ? ORDER BY timestamp DESC LIMIT 1', [userId]);
+    const { data: journals } = await supabase
+      .from('journals')
+      .select('content')
+      .eq('userId', userId)
+      .order('timestamp', { ascending: false })
+      .limit(1);
     
     res.json({ ...user, journals });
   } catch (err) {
@@ -128,20 +171,18 @@ app.get('/api/user/profile', authMiddleware, async (req, res) => {
   }
 });
 
-// ── AI CHAT ENDPOINT ───────────────────────────────────────
-
 app.post('/api/ai/chat', authMiddleware, async (req, res) => {
-  console.log("🧠 Aura Neural Core: Analyzing request...");
+  console.log("🧠 Aura Neural Core: Analyzing request via Supabase...");
   const { message, history } = req.body;
   const apiKey = process.env.GEMINI_API_KEY;
   const user = req.user;
 
-  const genAI = new GoogleGenerativeAI(apiKey);
-  
-  // Log query for Search History immediately
   try {
-    await run('INSERT INTO queries (userId, query, timestamp) VALUES (?, ?, ?)', 
-      [user.id, message, new Date().toISOString()]);
+    await supabase.from('queries').insert([{
+      userId: user.id,
+      query: message,
+      timestamp: new Date().toISOString()
+    }]);
   } catch(e) { console.error("History logging failed:", e); }
 
   // --- MODEL ROTATION LIST ---
@@ -341,8 +382,13 @@ app.post('/api/ai/roadmap', authMiddleware, async (req, res) => {
 app.get('/api/search-history', authMiddleware, async (req, res) => {
   const userId = req.user.id;
   try {
-    const queries = await all('SELECT query, timestamp FROM queries WHERE userId = ? ORDER BY timestamp DESC LIMIT 10', [userId]);
-    res.json(queries);
+    const { data: queries } = await supabase
+      .from('queries')
+      .select('query, timestamp')
+      .eq('userId', userId)
+      .order('timestamp', { ascending: false })
+      .limit(10);
+    res.json(queries || []);
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch search history' });
   }
@@ -354,7 +400,13 @@ app.post('/api/journal', authMiddleware, async (req, res) => {
   const timestamp = new Date().toISOString();
 
   try {
-    await run('INSERT INTO journals (userId, content, prompt, timestamp) VALUES (?, ?, ?, ?)', [userId, content, prompt, timestamp]);
+    const { error } = await supabase.from('journals').insert([{
+      userId,
+      content,
+      prompt,
+      timestamp
+    }]);
+    if (error) throw error;
     res.json({ success: true });
   } catch (err) {
     console.error("Journal Save Error:", err.message);

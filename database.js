@@ -6,12 +6,16 @@ const fs = require('fs');
 let pool;
 let localDB;
 const isProduction = !!process.env.POSTGRES_URL;
+const isSupabase = !!process.env.SUPABASE_URL;
 
 if (isProduction) {
+  console.log("☁️ Running in PRODUCTION mode (Postgres).");
   pool = new Pool({
     connectionString: process.env.POSTGRES_URL,
     ssl: { rejectUnauthorized: false }
   });
+} else if (isSupabase) {
+  console.log("🌌 Running in CLOUD mode (Supabase).");
 } else {
   console.log("⚠️ Running in LOCAL mode (SQLite). No cloud database detected.");
   const dataDir = path.join(__dirname, 'data');
