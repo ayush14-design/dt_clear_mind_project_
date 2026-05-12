@@ -3,6 +3,7 @@
 // ============================================================
 
 require('dotenv').config();
+console.log("🛠️ Environment Check:", process.env.SUPABASE_URL ? "Supabase URL Detected" : "No Supabase URL");
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
@@ -20,7 +21,7 @@ const JWT_SECRET = process.env.JWT_SECRET || 'clearmind-fallback-secret';
 // ── Middleware ──────────────────────────────────────────────
 app.use(cors());
 app.use(express.json());
-app.use(express.static(__dirname)); 
+// Static files are handled by Vercel directly for better performance
 
 // Global Request Logger
 app.use((req, res, next) => {
