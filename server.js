@@ -212,26 +212,30 @@ app.post('/api/ai/chat', authMiddleware, async (req, res) => {
     }
   }
 
-  // --- LOCAL FALLBACK (Adaptive) ---
+  // --- LOCAL FALLBACK (Adaptive & Interactive) ---
   console.log("🧠 Activating Aura Neural Core v5.0 (Fallback)...");
   const name = user.name.split(' ')[0];
   const msg = message.toLowerCase();
+  const isFirstMessage = !history || history.length === 0;
   
-  let responseText = `Hello ${name}. I am currently operating on my local neural core. `;
+  let responseText = "";
+  if (isFirstMessage) {
+    responseText += `Hello ${name}. I am currently operating on my local neural core. `;
+  }
 
-  // Simple adaptive logic
+  // Adaptive & Interactive logic
   if (msg.includes("hello") || msg.includes("hi")) {
-    responseText += "I am here to support your cognitive and emotional wellness. How are you feeling in this moment?";
+    responseText += "I am here to support your cognitive and emotional wellness. How has your day been affecting your energy levels so far?";
   } else if (msg.includes("stress") || msg.includes("anxious") || msg.includes("pressure")) {
-    responseText += "It sounds like you're under significant pressure. **Box Breathing** is the fastest way to reset your nervous system: Inhale for 4 seconds, hold for 4, exhale for 4, and hold for 4. It signals immediate safety to your brain.";
+    responseText += "It sounds like you're under significant pressure. Is there a specific event causing this, or is it a general feeling of being overwhelmed?";
   } else if (msg.includes("work") || msg.includes("focus") || msg.includes("study")) {
-    responseText += "To optimize your focus, I recommend the **5-Minute Entry**: Commit to the task for just 300 seconds. This bypasses the brain's initial resistance to difficult work.";
+    responseText += "To optimize your focus, I recommend the **5-Minute Entry**. What is the biggest distraction you're facing right now?";
   } else {
-    responseText += "I am listening closely. Your wellness is my priority. Even without a full cloud sync, I can guide you through grounding exercises to clear your mind.";
+    responseText += "I am listening closely. Your wellness is my priority. Could you tell me a bit more about what's on your mind so I can give you the best guidance?";
   }
 
   // Proactive closing
-  responseText += "\n\n**Would you like me to generate a personalized wellness protocol for you based on this?**";
+  responseText += "\n\n**Shall I generate a personalized wellness protocol or a focus plan to help you navigate this?**";
   
   return res.json({ response: responseText });
 });
