@@ -14,6 +14,9 @@ const { run, get, all, initDB } = require('./database');
 const supabase = require('./supabase');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 
+// Initialize AI globally
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 const JWT_SECRET = process.env.JWT_SECRET || 'clearmind-fallback-secret';
@@ -184,7 +187,6 @@ app.post('/api/ai/chat', authMiddleware, async (req, res) => {
 
   // --- MODEL ROTATION LIST ---
   const models = ['gemini-1.5-flash', 'gemini-1.5-pro', 'gemini-2.0-flash', 'gemini-1.0-pro'];
-  const genAI = new GoogleGenerativeAI(apiKey);
   const systemPrompt = AURA_SYSTEM_PROMPT(user.name);
   
   for (let modelName of models) {
