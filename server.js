@@ -1,5 +1,5 @@
-// ============================================================
 // ClearMind — Backend Server v4.7 (Simple & Fast)
+// Heartbeat Update: 2026-05-13 — Cloud Stability Fix
 // ============================================================
 
 require('dotenv').config();
