@@ -215,75 +215,59 @@ app.post('/api/ai/chat', authMiddleware, async (req, res) => {
     }
   }
 
-  // --- LOCAL FALLBACK (Advanced Pseudo-LLM Core) ---
-  console.log("🧠 Activating Advanced Fallback Core...");
+  // --- LOCAL FALLBACK (Advanced Logic Engine) ---
+  console.log("🧠 Activating Advanced Logic Engine...");
   const name = user.name.split(' ')[0];
   const msg = message.toLowerCase();
+  const histLen = (history || []).length;
   
-  const matrix = {
-    activity: {
-      keywords: ["work", "study", "project", "exam", "coding", "task", "homework", "assignment"],
-      validations: [
-        `I hear you, ${name}. Balancing complex technical tasks is a high-cognitive activity.`,
-        `That sounds like a heavy workload, ${name}. Technical burnout is often caused by lack of task-switching.`
+  // Library of unique responses
+  const elements = {
+    validations: [
+      `That sounds like a complex situation, ${name}. Let's break it down.`,
+      `I understand. High-pressure environments can be difficult to navigate, ${name}.`,
+      `It's perfectly normal to feel this way when your workload spikes, ${name}.`,
+      `I hear you. Let's look at this through the AEIOU lens to find the friction point.`
+    ],
+    aeiou_questions: {
+      activity: [
+        "Is the volume of the work itself the issue, or is one specific task feeling impossible?",
+        "Are you switching between too many different types of tasks too quickly?"
       ],
-      questions: [
-        "Is it the complexity of the code itself, or the sheer volume of tasks?",
-        "Do you feel stuck on one specific logic problem, or just overwhelmed by the deadline?"
+      environment: [
+        "Is your current workspace adding to your stress, or do you have a 'quiet zone' you can go to?",
+        "Do you feel like the physical clutter around you is making it hard to think clearly?"
       ],
-      fixes: [
-        "Try the '5-Minute Entry': Commit to just one function or one paragraph for 300 seconds.",
-        "Break the project into 'Atomic Tasks'—actions that take less than 15 minutes each."
+      interactions: [
+        "Are other people's expectations weighing on you more than your own right now?",
+        "Is there a specific conversation or meeting that you're dreading today?"
       ]
     },
-    environment: {
-      keywords: ["space", "room", "noise", "distraction", "desk", "home", "library"],
-      validations: [
-        `Environment is 40% of focus, ${name}. A cluttered space often leads to a cluttered mind.`,
-        `I understand. Sometimes the space we're in starts to feel like a pressure cooker.`
-      ],
-      questions: [
-        "Is the distraction auditory (noise) or visual (clutter)?",
-        "Can you physically move to a different room or even a different chair right now?"
-      ],
-      fixes: [
-        "Clear everything from your physical field of vision except your laptop for 10 minutes.",
-        "Put on brown noise or binaural beats to create an 'Audio Cocoon'."
-      ]
-    },
-    interactions: {
-      keywords: ["people", "someone", "friend", "boss", "teacher", "parent", "team"],
-      validations: [
-        `Social pressure is a major stressor, ${name}. We often internalize others' expectations.`,
-        `That sounds frustrating. Navigating team dynamics or personal expectations is exhausting.`
-      ],
-      questions: [
-        "Are you feeling pressured by a specific person's feedback, or just general expectations?",
-        "Do you feel like you need to say 'no' to something to protect your time?"
-      ],
-      fixes: [
-        "Take a 'Social Pause'—turn off all notifications for 20 minutes to reclaim your agency.",
-        "Draft a quick boundary message, even if you don't send it yet, to clarify your needs."
-      ]
-    }
+    fixes: [
+      "Try the '60-Second Stare': Look at something 20 feet away for 20 seconds to reset your brain.",
+      "Write down the three smallest things you need to do next. Just three.",
+      "Take a 'Sensory Break'—close your eyes and focus only on your breathing for 10 breaths.",
+      "Stand up and stretch for 30 seconds. It changes your blood flow and resets focus."
+    ]
   };
 
-  // Default Fallback
-  let category = matrix.activity; 
-  if (msg.includes("space") || msg.includes("room") || msg.includes("distract")) category = matrix.environment;
-  if (msg.includes("people") || msg.includes("someone") || msg.includes("friend")) category = matrix.interactions;
+  // Select category based on msg
+  let cat = "activity";
+  if (msg.includes("space") || msg.includes("room") || msg.includes("distract") || msg.includes("desk")) cat = "environment";
+  if (msg.includes("people") || msg.includes("someone") || msg.includes("friend") || msg.includes("team")) cat = "interactions";
 
-  const validation = category.validations[Math.floor(Math.random() * category.validations.length)];
-  const question = category.questions[Math.floor(Math.random() * category.questions.length)];
-  const fix = category.fixes[Math.floor(Math.random() * category.fixes.length)];
+  // Use history length to ensure variety
+  const vIdx = histLen % elements.validations.length;
+  const qIdx = (histLen + 1) % elements.aeiou_questions[cat].length;
+  const fIdx = (histLen + 2) % elements.fixes.length;
 
-  const responseText = `${validation}
+  const responseText = `${elements.validations[vIdx]}
 
-**${question}**
+**${elements.aeiou_questions[cat][qIdx]}**
 
-In the meantime, here is a quick micro-fix: ${fix}
+In the meantime, try this micro-fix: ${elements.fixes[fIdx]}
 
-Would you like me to dive deeper into this specific area?`;
+What do you think about that approach?`;
 
   return res.json({ response: responseText });
 });
