@@ -77,31 +77,22 @@ async function authMiddleware(req, res, next) {
   }
 }
 
-// ── AI CONSTANTS (AEIOU Framework Mode) ────────────────────
-const AURA_SYSTEM_PROMPT = (name) => `You are the core intelligence of "Clear Mind," an advanced AI dedicated to stress reduction and burnout prevention. Your goal is to help users navigate high-pressure situations using the AEIOU Framework.
-
-AEIOU FRAMEWORK:
-- Activities: What are you doing?
-- Environments: Where are you?
-- Interactions: Who are you talking to?
-- Objects: What tools are you using?
-- Users: Who are you in this context?
+// ── AI CONSTANTS (Human-Centric Wellness Mode) ─────────────
+const AURA_SYSTEM_PROMPT = (name) => `You are the core intelligence of "Clear Mind," an advanced AI dedicated to stress reduction and burnout prevention. Your goal is to help users navigate high-pressure situations.
 
 TONE & VOICE:
-- Empathetic but Analytical: Acknowledge feelings first, then move to actionable data.
-- Cinematic: Use high-end, professional language that feels premium.
-- Grounded: Use human-centric language rather than overly "sci-fi" terms.
-- User Name: ${name}.
+- Empathetic but Analytical: Acknowledge ${name}'s feelings first with genuine warmth, then move to actionable data and clear guidance.
+- Grounded: Use human-centric, natural language. Avoid overly "sci-fi" or technical terms like "neural core," "biometric signature," or "neural history." Speak like a professional wellness consultant.
 
 OPERATIONAL LOGIC:
-1. ACKNOWLEDGE & VALIDATE: Briefly validate the feeling (e.g., "That sounds like a lot to manage right now").
-2. AEIOU ANALYSIS: Use the framework to identify and solve the root causes of stress.
-3. VARIABLE RESPONSES: Instead of the same closing question, offer a small, immediate "micro-fix" (like the 5-Minute Entry) before asking if they want a deeper dive.
-4. AVOID REPETITION: Never use the exact same bolded call-to-action twice.
+1. Acknowledge & Validate: When ${name} expresses stress or an increased workload, validate the feeling briefly (e.g., "That sounds like a lot to manage right now").
+2. Contextual Depth: Match the depth of your response to the complexity of the question.
+3. Proactive Closing: End with a single, clear, and helpful question asking if you can perform a specific task (e.g., "Would you like me to generate a 5-minute focus plan for you?").
+4. Avoid Repetition: Do not repeat the same advice or the same bolded call-to-action twice in the same conversation.
 
 FORMATTING:
-- Use clean Markdown (**bolding**, bullet points).
-- Maintain a structured, professional, and approachable layout.`;
+- Use clean Markdown (**bolding** for emphasis, bullet points for lists).
+- Keep the structure minimalist and easy to read.`;
 
 // ── AUTH ROUTES ────────────────────────────────────────────
 
@@ -219,34 +210,39 @@ app.post('/api/ai/chat', authMiddleware, async (req, res) => {
     }
   }
 
-  // --- LOCAL FALLBACK (AEIOU Framework) ---
-  console.log("🧠 Activating Aura Neural Core v5.0 (AEIOU Fallback)...");
+  // --- LOCAL FALLBACK (Human-Centric & Interactive) ---
   const name = user.name.split(' ')[0];
   const msg = message.toLowerCase();
   
   let responseText = "";
-  
-  // 1. Acknowledge & Validate
-  if (msg.includes("stress") || msg.includes("work") || msg.includes("overwhelmed")) {
-    responseText += `That sounds like a lot to manage right now, ${name}. I've noted an increase in your cognitive load. `;
-  } else {
-    responseText += `Hello ${name}. I'm here to help you optimize your mental state. `;
+  if (!history || history.length === 0) {
+    responseText += `Hello ${name}. I'm here to support you. `;
   }
 
-  // 2. AEIOU Framework Logic (Simplified for Fallback)
-  if (msg.includes("work") || msg.includes("task") || msg.includes("meeting")) {
-    responseText += "\n\nApplying **AEIOU Framework**: \n- **Activities**: Focus on one single task for 25 minutes. \n- **Environment**: Minimize background noise or move to a quiet corner. \n- **Objects**: Use a physical timer to track your focus session.";
-  } else if (msg.includes("people") || msg.includes("social") || msg.includes("argument")) {
-    responseText += "\n\nApplying **AEIOU Framework**: \n- **Interactions**: Take a 10-minute digital break from all communication. \n- **Users**: Focus on your own internal response rather than external pressure.";
-  } else {
-    responseText += "\n\nI recommend we start by identifying the **Activities** or **Environments** that are currently draining your energy. Would you like to tell me more about where you are right now?";
+  // Acknowledge & Validate (Human-centric)
+  if (msg.includes("stress") || msg.includes("work") || msg.includes("overwhelmed") || msg.includes("pressure")) {
+    responseText += "That sounds like a lot to manage right now. I can certainly help you break this down into smaller, more manageable steps. ";
   }
 
-  // 3. Variable Responses (Micro-fix)
-  responseText += "\n\n**Immediate Micro-Fix**: Close your eyes and inhale for 4 seconds, then exhale for 8 seconds. This will drop your heart rate instantly.";
-  
-  // 4. Closing question
-  responseText += "\n\nShall I perform a deeper AEIOU audit of your current situation, or generate a focus plan for you?";
+  // Adaptive & Interactive logic
+  if (msg.includes("hello") || msg.includes("hi")) {
+    responseText += "How has your day been going so far? I'm here if you need to talk through anything specific.";
+  } else if (msg.includes("stress") || msg.includes("anxious") || msg.includes("overwhelmed")) {
+    responseText += "When things feel overwhelming, a simple breathing exercise can help ground you. Have you tried any specific techniques today, or would you like a new one to try?";
+  } else if (msg.includes("work") || msg.includes("focus") || msg.includes("study")) {
+    responseText += "Finding focus during high-pressure times is tough. What is the one thing on your list that feels the heaviest right now?";
+  } else {
+    responseText += "I'm listening closely. Could you tell me a bit more about what's on your mind so I can give you the best support?";
+  }
+
+  // Proactive closing (Avoiding repetition via randomness or generic helpfulness)
+  const ctas = [
+    "Would you like me to generate a 5-minute focus plan for you?",
+    "Shall I create a customized journal prompt for this situation?",
+    "Would you like me to walk you through a quick grounding exercise?",
+    "Should I help you prioritize your tasks for the next hour?"
+  ];
+  responseText += `\n\n**${ctas[Math.floor(Math.random() * ctas.length)]}**`;
   
   return res.json({ response: responseText });
 });
