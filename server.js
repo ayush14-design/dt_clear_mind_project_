@@ -180,7 +180,7 @@ app.post('/api/ai/chat', authMiddleware, async (req, res) => {
   } catch(e) { console.error("History logging failed:", e); }
 
   // --- CLOUD AI ATTEMPT ---
-  const models = ['gemini-1.5-flash-latest', 'gemini-pro', 'gemini-1.5-pro', 'gemini-1.5-flash', 'gemini-2.0-flash'];
+  const models = ['gemini-flash-latest', 'gemini-pro-latest', 'gemini-2.5-flash-lite', 'gemini-3.1-flash-lite-preview', 'gemini-1.5-flash', 'gemini-1.5-pro'];
   const systemPrompt = AURA_SYSTEM_PROMPT(user.name);
   
   for (let modelName of models) {
@@ -200,11 +200,12 @@ app.post('/api/ai/chat', authMiddleware, async (req, res) => {
       });
 
       const result = await chat.sendMessage(message);
-      const responseText = result.response.text();
+      const response = await result.response;
+      const responseText = response.text();
       console.log(`✅ Success with ${modelName}`);
       return res.json({ response: responseText });
     } catch (err) {
-      console.log(`⚠️ ${modelName} failed: ${err.message.substring(0, 50)}...`);
+      console.log(`⚠️ ${modelName} failed: ${err.message.substring(0, 80)}...`);
       continue;
     }
   }
