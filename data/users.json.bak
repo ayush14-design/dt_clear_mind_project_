@@ -1,0 +1,316 @@
+[
+  {
+    "id": "mog2ugb090szdx",
+    "name": "Ayush Mandalkar",
+    "email": "ayushmandalkar14@gmail.com",
+    "password": "$2a$10$DgkdFy4YFrzUJO7gwZRFWOwBAUNMSxZkfXlBK2QNYYzS8BngvJBPW",
+    "industry": "data science",
+    "createdAt": "2026-04-26T18:03:45.036Z",
+    "moods": [],
+    "sessions": [],
+    "streak": 1,
+    "totalMinutes": 0,
+    "lastActiveDate": "2026-04-26"
+  },
+  {
+    "id": "mog34yk7gmxz6b",
+    "name": "Ayush Mandalkar",
+    "email": "ayushmandalkar4@gmail.com",
+    "password": "$2a$10$66QS5TwQAgDAYqk948baI.lMxqUSse/pQR1SRsU5MDo6aMpYI9WYe",
+    "industry": "data csience",
+    "createdAt": "2026-04-26T18:11:55.255Z",
+    "moods": [],
+    "sessions": [],
+    "streak": 1,
+    "totalMinutes": 0,
+    "lastActiveDate": "2026-04-26"
+  },
+  {
+    "id": "mog3h3tf88d5kk",
+    "name": "Ayush Mandalkar",
+    "email": "ayushmandalkar@gmail.com",
+    "password": "$2a$10$d1nl1fKLx4FEwvISndFLYeEDe9tl8olp0I9DgHhuCeaZuTq5nFJRq",
+    "industry": "data science",
+    "createdAt": "2026-04-26T18:21:21.939Z",
+    "moods": [],
+    "sessions": [],
+    "streak": 1,
+    "totalMinutes": 0,
+    "lastActiveDate": "2026-04-26"
+  },
+  {
+    "id": "mog41cdx3lwiok",
+    "name": "Ayush Mandalkar ",
+    "email": "ayushmandalkar1@gmail.com",
+    "password": "$2a$10$yNBnkZ1ZerWTtSidB1nYn.FwNdVko5xAv12J2cJDPbk/PGEw4Jvea",
+    "industry": "dataa cjnuod",
+    "createdAt": "2026-04-26T18:37:06.165Z",
+    "moods": [
+      {
+        "emoji": "😟",
+        "label": "Anxious",
+        "note": "",
+        "intensity": 5,
+        "sentiment": "neutral",
+        "timestamp": "2026-04-26T19:28:32.966Z"
+      }
+    ],
+    "sessions": [
+      {
+        "type": "sounds",
+        "name": "Alpha Waves — 10Hz",
+        "duration": 0,
+        "timestamp": "2026-04-26T18:50:20.228Z"
+      },
+      {
+        "type": "sounds",
+        "name": "Alpha Waves — 10Hz",
+        "duration": 0,
+        "timestamp": "2026-04-26T19:07:39.503Z"
+      }
+    ],
+    "streak": 1,
+    "totalMinutes": 0,
+    "lastActiveDate": "2026-04-26",
+    "roadmap": null
+  },
+  {
+    "id": "moi68i63spg0h0",
+    "name": "Atharv",
+    "email": "atharvbane000@gmail.com",
+    "password": "$2a$10$tThkCP/UWoOjPXRSplxxLu6W/E1KfmhUXrnw5T4tbHQTOyQhm37h2",
+    "industry": "MIT AOE",
+    "createdAt": "2026-04-28T05:14:11.835Z",
+    "moods": [],
+    "sessions": [],
+    "streak": 1,
+    "totalMinutes": 0,
+    "lastActiveDate": "2026-04-28",
+    "roadmap": null
+  },
+  {
+    "id": "moi6e634nla2le",
+    "name": "ayush",
+    "email": "ayushmandalkar12@gmail.com",
+    "password": "$2a$10$OkZxiCv4V0t/pKi4rayobefTVVs.u1BwS3aGxFhmbmrJHFRnKGjvC",
+    "industry": "data science",
+    "createdAt": "2026-04-28T05:18:36.112Z",
+    "moods": [],
+    "sessions": [
+      {
+        "type": "breathing",
+        "name": "Box Session",
+        "duration": 6,
+        "timestamp": "2026-04-28T05:20:08.972Z"
+      },
+      {
+        "type": "sounds",
+        "name": "Alpha Waves — 10Hz",
+        "duration": 0,
+        "timestamp": "2026-04-28T05:20:16.297Z"
+      },
+      {
+        "type": "game",
+        "name": "",
+        "duration": 1,
+        "timestamp": "2026-04-28T05:52:26.606Z"
+      },
+      {
+        "type": "game",
+        "name": "",
+        "duration": 1,
+        "timestamp": "2026-04-28T05:52:54.283Z"
+      }
+    ],
+    "streak": 1,
+    "totalMinutes": 0,
+    "lastActiveDate": "2026-04-28",
+    "roadmap": null
+  },
+  {
+    "id": "moijez72bwi5jr",
+    "name": "ayush mandalkar",
+    "email": "ayushmandalkar04@gmail.com",
+    "password": "$2a$10$4CmOZjx0usln35qdmXzvTO0wk53BqpIX9..HMng80sySeszYw/cBO",
+    "industry": "Technology",
+    "createdAt": "2026-04-28T11:23:08.846Z",
+    "moods": [],
+    "sessions": [
+      {
+        "type": "sounds",
+        "name": "Alpha Waves — 10Hz",
+        "duration": 0,
+        "timestamp": "2026-04-28T11:23:18.955Z"
+      },
+      {
+        "type": "sounds",
+        "name": "Alpha Waves — 10Hz",
+        "duration": 0,
+        "timestamp": "2026-04-28T11:23:23.553Z"
+      },
+      {
+        "type": "sounds",
+        "name": "Alpha Waves — 10Hz",
+        "duration": 0,
+        "timestamp": "2026-04-28T11:23:26.201Z"
+      }
+    ],
+    "streak": 1,
+    "totalMinutes": 0,
+    "lastActiveDate": "2026-04-28",
+    "roadmap": null
+  },
+  {
+    "id": "moo4yuraxowpmw",
+    "name": "ayush mandalkar",
+    "email": "ayushmandalkar08@gmail.com",
+    "password": "$2a$10$DhAt9gLlsYF5X/5niP8G0.9cfewEeKU6mN6FCKdpXjdljJm4BiXQC",
+    "industry": "Technology",
+    "createdAt": "2026-05-02T09:25:19.030Z",
+    "moods": [],
+    "sessions": [
+      {
+        "type": "sounds",
+        "name": "Alpha Waves — 10Hz",
+        "duration": 0,
+        "timestamp": "2026-05-02T09:25:31.724Z"
+      }
+    ],
+    "streak": 1,
+    "totalMinutes": 0,
+    "lastActiveDate": "2026-05-02",
+    "roadmap": null
+  },
+  {
+    "id": "moo5t0n15vvego",
+    "name": "ayush mandalkar",
+    "email": "ayushmandalkar00@gmail.com",
+    "password": "$2a$10$PHZaZpX1fqDsG88FlXJb5e7vZdyJlV2S.FHFq0aSIjtJgY7jpvIBC",
+    "industry": "Technology",
+    "createdAt": "2026-05-02T09:48:46.333Z",
+    "moods": [],
+    "sessions": [],
+    "streak": 1,
+    "totalMinutes": 0,
+    "lastActiveDate": "2026-05-02",
+    "roadmap": null
+  },
+  {
+    "id": "moo73cysfvqjty",
+    "name": "ayush mandalkar",
+    "email": "ayushmandalkar0987@gmail.com",
+    "password": "$2a$10$c5Gljj1f6Fx7Vqmbgj0X8urNgo93yA8hS.Y2zYgn4fxF4Y5kubgE.",
+    "industry": "Technology",
+    "createdAt": "2026-05-02T10:24:48.485Z",
+    "moods": [
+      {
+        "emoji": "🙂",
+        "label": "Happy",
+        "note": "",
+        "intensity": 5,
+        "timestamp": "2026-05-02T10:25:06.564Z"
+      },
+      {
+        "emoji": "😐",
+        "label": "Neutral",
+        "note": "",
+        "intensity": 5,
+        "timestamp": "2026-05-02T10:25:09.643Z"
+      },
+      {
+        "emoji": "😟",
+        "label": "Anxious",
+        "note": "",
+        "intensity": 5,
+        "timestamp": "2026-05-02T10:25:11.755Z"
+      },
+      {
+        "emoji": "😤",
+        "label": "Angry",
+        "note": "",
+        "intensity": 5,
+        "timestamp": "2026-05-02T10:25:13.123Z"
+      },
+      {
+        "emoji": "🙂",
+        "label": "Happy",
+        "note": "",
+        "intensity": 5,
+        "timestamp": "2026-05-02T10:25:15.987Z"
+      },
+      {
+        "emoji": "🙂",
+        "label": "Happy",
+        "note": "",
+        "intensity": 5,
+        "timestamp": "2026-05-02T10:25:17.547Z"
+      },
+      {
+        "emoji": "🙂",
+        "label": "Happy",
+        "note": "",
+        "intensity": 5,
+        "timestamp": "2026-05-02T10:25:17.796Z"
+      },
+      {
+        "emoji": "🙂",
+        "label": "Happy",
+        "note": "",
+        "intensity": 5,
+        "timestamp": "2026-05-02T10:25:18.011Z"
+      },
+      {
+        "emoji": "🙂",
+        "label": "Happy",
+        "note": "",
+        "intensity": 5,
+        "timestamp": "2026-05-02T10:25:18.316Z"
+      },
+      {
+        "emoji": "🙂",
+        "label": "Happy",
+        "note": "",
+        "intensity": 5,
+        "timestamp": "2026-05-02T10:25:18.610Z"
+      },
+      {
+        "emoji": "🙂",
+        "label": "Happy",
+        "note": "",
+        "intensity": 5,
+        "timestamp": "2026-05-02T10:25:18.916Z"
+      },
+      {
+        "emoji": "🙂",
+        "label": "Happy",
+        "note": "",
+        "intensity": 5,
+        "timestamp": "2026-05-02T10:25:19.507Z"
+      },
+      {
+        "emoji": "🙂",
+        "label": "Happy",
+        "note": "",
+        "intensity": 5,
+        "timestamp": "2026-05-02T10:25:22.307Z"
+      },
+      {
+        "emoji": "🙂",
+        "label": "Happy",
+        "note": "",
+        "intensity": 5,
+        "timestamp": "2026-05-02T10:25:23.178Z"
+      }
+    ],
+    "sessions": [],
+    "journals": [],
+    "streak": 1,
+    "totalMinutes": 0,
+    "lastActiveDate": "2026-05-02",
+    "roadmap": null,
+    "analytics": {
+      "calmScoreHistory": [],
+      "focusSessions": []
+    }
+  }
+]

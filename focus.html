@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Focus Chamber — ClearMind</title>
+<link rel="stylesheet" href="style.css">
+<style>
+  #focus-chamber { max-width: 800px; margin: 0 auto; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+  
+  .timer-display { font-family: var(--font-serif); font-size: 160px; line-height: 1; color: var(--white); margin-bottom: 24px; position: relative; }
+  .timer-display::after { content: ''; position: absolute; inset: -20px; border: 1px solid var(--purple-glow); border-radius: 50%; opacity: 0.3; }
+  
+  .timer-controls { display: flex; gap: 24px; margin-bottom: 64px; }
+  
+  .audio-suite { width: 100%; display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+  .audio-card { padding: 24px; cursor: pointer; border: 1px solid var(--glass-border); transition: var(--transition); }
+  .audio-card.active { border-color: var(--purple); background: var(--purple-glow); }
+  .audio-card i { font-size: 24px; display: block; margin-bottom: 12px; }
+
+  .zen-mode-toggle { position: fixed; bottom: 40px; right: 40px; }
+
+  @keyframes pulse-timer {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.02); opacity: 0.8; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+  .timer-active { animation: pulse-timer 2s infinite ease-in-out; }
+</style>
+</head>
+<body>
+
+<div class="hero-video-container">
+  <video autoPlay loop muted playsInline>
+    <source src="https://res.cloudinary.com/dfonotyfb/video/upload/v1775585556/dds3_1_rqhg7x.mp4" type="video/mp4" />
+  </video>
+</div>
+
+<nav id="navbar">
+  <a href="index.html" class="logo">Clear<span>Mind</span></a>
+  <a href="index.html" class="nav-cta">Exit Chamber</a>
+</nav>
+
+<section id="focus-chamber">
+  <div class="animate-in">
+    <div style="font-size:12px; text-transform:uppercase; letter-spacing:4px; color:var(--purple); margin-bottom:16px;">Flow State Protocol</div>
+    <h2 style="font-size:48px; margin-bottom:24px;">The Focus Chamber</h2>
+    
+    <div style="margin-bottom: 40px; display: flex; gap: 12px; justify-content: center;">
+      <select id="durationSelect" class="nav-cta" style="background: var(--glass-bg); padding: 8px 16px;" onchange="updateDuration()">
+        <option value="15">15 Minutes</option>
+        <option value="25" selected>25 Minutes</option>
+        <option value="45">45 Minutes</option>
+        <option value="60">60 Minutes</option>
+        <option value="custom">Custom...</option>
+      </select>
+      <input type="number" id="customDuration" class="nav-cta" style="display:none; width: 80px; background: var(--glass-bg); padding: 8px 16px;" placeholder="Mins" onchange="updateDuration()">
+    </div>
+  </div>
+
+  <div class="timer-display animate-in" id="timer">25:00</div>
+
+  <div class="timer-controls animate-in">
+    <button class="btn-primary" id="startBtn" onclick="toggleTimer()" style="background:var(--purple); box-shadow: 0 8px 16px var(--purple-glow);">Initialize Flow</button>
+    <button class="nav-cta" onclick="resetTimer()">Reset</button>
+  </div>
+
+  <div class="audio-suite animate-in" style="animation-delay: 0.2s;">
+    <div class="glass audio-card active" onclick="setAudio('alpha', this)">
+      <div>🧠</div>
+      <h4 style="font-size:16px;">Alpha Waves</h4>
+      <p style="font-size:11px; color:var(--text); margin-top:8px;">10Hz Synchronization</p>
+    </div>
+    <div class="glass audio-card" onclick="setAudio('theta', this)">
+      <div>🧘</div>
+      <h4 style="font-size:16px;">Theta Deep</h4>
+      <p style="font-size:11px; color:var(--text); margin-top:8px;">Subconscious Flow</p>
+    </div>
+    <div class="glass audio-card" onclick="setAudio('brown', this)">
+      <div>🌊</div>
+      <h4 style="font-size:16px;">Deep Brown</h4>
+      <p style="font-size:11px; color:var(--text); margin-top:8px;">Acoustic Shield</p>
+    </div>
+  </div>
+</section>
+
+<div class="zen-mode-toggle">
+    <button class="nav-cta" onclick="toggleZen()">Zen Mode</button>
+</div>
+
+<!-- No external audio files needed - now using real-time Neural Synthesis -->
+<div id="toast">
+  <div id="toast-title" style="font-weight:600; font-size:14px; color:var(--teal-light);"></div>
+  <div id="toast-msg" style="font-size:12px; color:#ccc;"></div>
+</div>
+
+<script src="shared.js"></script>
+<script>
+let timeLeft = 25 * 60;
+let timerId = null;
+let currentAudio = 'alpha';
+let isZen = false;
+
+// 🧠 AURA NEURAL SYNTHESIS ENGINE (100% Reliable Local Generation)
+class WellnessAudioEngine {
+    constructor() {
+        this.ctx = null;
+        this.osc1 = null;
+        this.osc2 = null;
+        this.noiseNode = null;
+        this.gainNode = null;
+    }
+
+    init() {
+        if (!this.ctx) {
+            this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+            this.gainNode = this.ctx.createGain();
+            this.gainNode.connect(this.ctx.destination);
+            this.gainNode.gain.value = 0.3; // Comfortable volume
+        }
+        if (this.ctx.state === 'suspended') {
+            this.ctx.resume();
+        }
+    }
+
+    play(type) {
+        this.stop();
+        this.init();
+        
+        if (type === 'alpha') {
+            // Real 10Hz Alpha Binaural (200Hz Left, 210Hz Right)
+            this.osc1 = this.createOsc(200, -1);
+            this.osc2 = this.createOsc(210, 1);
+        } else if (type === 'theta') {
+            // Real 4Hz Theta Binaural (200Hz Left, 204Hz Right)
+            this.osc1 = this.createOsc(200, -1);
+            this.osc2 = this.createOsc(204, 1);
+        } else if (type === 'brown') {
+            // Mathematical Brown Noise Generation
+            this.noiseNode = this.createBrownNoise();
+            this.noiseNode.connect(this.gainNode);
+            this.noiseNode.start();
+        }
+    }
+
+    createOsc(freq, pan) {
+        const osc = this.ctx.createOscillator();
+        const panner = this.ctx.createStereoPanner ? this.ctx.createStereoPanner() : this.ctx.createPanner();
+        osc.frequency.value = freq;
+        if (panner.pan) panner.pan.value = pan; 
+        osc.connect(panner);
+        panner.connect(this.gainNode);
+        osc.start();
+        return osc;
+    }
+
+    createBrownNoise() {
+        const bufferSize = 2 * this.ctx.sampleRate;
+        const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+        const output = buffer.getChannelData(0);
+        let lastOut = 0.0;
+        for (let i = 0; i < bufferSize; i++) {
+            const white = Math.random() * 2 - 1;
+            output[i] = (lastOut + (0.02 * white)) / 1.02;
+            lastOut = output[i];
+            output[i] *= 3.5; // volume adjust
+        }
+        const node = this.ctx.createBufferSource();
+        node.buffer = buffer;
+        node.loop = true;
+        return node;
+    }
+
+    stop() {
+        if (this.osc1) { try { this.osc1.stop(); } catch(e){} this.osc1 = null; }
+        if (this.osc2) { try { this.osc2.stop(); } catch(e){} this.osc2 = null; }
+        if (this.noiseNode) { try { this.noiseNode.stop(); } catch(e){} this.noiseNode = null; }
+    }
+}
+
+const auraEngine = new WellnessAudioEngine();
+
+// Unlock audio context on first user click
+document.addEventListener('click', () => {
+    auraEngine.init();
+}, { once: true });
+
+function updateDisplay() {
+    const mins = Math.floor(timeLeft / 60);
+    const secs = timeLeft % 60;
+    document.getElementById('timer').textContent = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+}
+
+function updateDuration() {
+    if (timerId) {
+        showToast('Info', 'Reset the timer to change duration.');
+        return;
+    }
+    const select = document.getElementById('durationSelect');
+    const custom = document.getElementById('customDuration');
+    
+    if (select.value === 'custom') {
+        custom.style.display = 'inline-block';
+        const mins = parseInt(custom.value) || 25;
+        timeLeft = mins * 60;
+    } else {
+        custom.style.display = 'none';
+        timeLeft = parseInt(select.value) * 60;
+    }
+    updateDisplay();
+}
+
+function playAudio() {
+    try {
+        auraEngine.play(currentAudio);
+    } catch(e) {
+        console.error("Audio engine failed:", e);
+        showToast('System Error', 'Could not initialize neural synthesis.');
+    }
+}
+
+function stopAllAudio() {
+    auraEngine.stop();
+}
+
+function toggleTimer() {
+    const btn = document.getElementById('startBtn');
+    const display = document.getElementById('timer');
+
+    if (timerId) {
+        // PAUSE
+        clearInterval(timerId);
+        timerId = null;
+        btn.textContent = 'Resume Flow';
+        display.classList.remove('timer-active');
+        stopAllAudio();
+    } else {
+        // START
+        btn.textContent = 'Pause Flow';
+        display.classList.add('timer-active');
+        
+        // Play selected wave when timer starts
+        playAudio();
+        
+        timerId = setInterval(() => {
+            timeLeft--;
+            updateDisplay();
+            if (timeLeft <= 0) {
+                clearInterval(timerId);
+                finishSession();
+            }
+        }, 1000);
+    }
+}
+
+function resetTimer() {
+    clearInterval(timerId);
+    timerId = null;
+    
+    const select = document.getElementById('durationSelect');
+    const custom = document.getElementById('customDuration');
+    const mins = select.value === 'custom' ? (parseInt(custom.value) || 25) : parseInt(select.value);
+    
+    timeLeft = mins * 60;
+    updateDisplay();
+    document.getElementById('startBtn').textContent = 'Initialize Flow';
+    document.getElementById('timer').classList.remove('timer-active');
+    stopAllAudio();
+}
+
+async function finishSession() {
+    showToast('Success', 'Focus protocol complete.');
+    stopAllAudio();
+
+    const select = document.getElementById('durationSelect');
+    const custom = document.getElementById('customDuration');
+    const mins = select.value === 'custom' ? (parseInt(custom.value) || 25) : parseInt(select.value);
+
+    try {
+        await fetch(`${API_BASE}/focus/log`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` },
+            body: JSON.stringify({ duration: mins * 60, type: currentAudio })
+        });
+    } catch(e) {}
+    resetTimer();
+}
+
+function setAudio(type, el) {
+    console.log(`Wave selected: ${type}`);
+    currentAudio = type;
+    
+    // UI Update
+    document.querySelectorAll('.audio-card').forEach(c => c.classList.remove('active'));
+    el.classList.add('active');
+    
+    showToast('Audio Sync', `${type.toUpperCase()} frequencies active.`);
+    
+    // If timer is already running, switch the music immediately
+    if (timerId) {
+        playAudio();
+    }
+}
+
+function toggleZen() {
+    isZen = !isZen;
+    document.getElementById('navbar').style.display = isZen ? 'none' : 'flex';
+    document.body.style.overflow = isZen ? 'hidden' : 'auto';
+    if(isZen && document.documentElement.requestFullscreen) {
+        document.documentElement.requestFullscreen();
+    } else if(document.exitFullscreen) {
+        document.exitFullscreen();
+    }
+}
+
+const urlParams = new URLSearchParams(window.location.search);
+if(urlParams.get('start') === 'true') setTimeout(toggleTimer, 1000);
+</script>
+</body>
+</html>

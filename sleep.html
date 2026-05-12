@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sleep & Stories — ClearMind</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.3/howler.min.js"></script>
+<style>
+  .sleep-container { max-width: 1000px; margin: 0 auto; padding-top: 130px; }
+  .mixer-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 25px; margin-top: 50px; }
+  
+  .sound-card { 
+    padding: 30px; border-radius: 28px; text-align: center; 
+    transition: var(--transition);
+  }
+  
+  .sound-card:hover { transform: translateY(-5px); background: rgba(255,255,255,0.06); }
+  
+  .vol-slider { 
+    width: 100%; margin-top: 20px; accent-color: var(--teal); 
+    height: 4px; border-radius: 2px;
+  }
+  
+  .timer-box { padding: 40px; border-radius: 40px; text-align: center; margin-top: 50px; }
+  
+  .timer-btn-group { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
+  
+  .timer-btn { 
+    background: none; border: 1px solid var(--glass-border); color: var(--white); 
+    padding: 12px 24px; border-radius: 100px; cursor: pointer; transition: var(--transition);
+    font-size: 13px; letter-spacing: 1px;
+  }
+  
+  .timer-btn.active { background: var(--teal); border-color: var(--teal); }
+  .timer-btn:hover:not(.active) { border-color: var(--teal-light); color: var(--teal-light); }
+  
+  .story-box { 
+    background: rgba(13, 148, 136, 0.03); 
+    border: 1px solid var(--glass-border); 
+    padding: 50px; border-radius: 40px; margin-top: 50px; 
+    transition: var(--transition);
+  }
+  
+  #storyText { 
+    font-family: var(--font-serif); font-size: 22px; line-height: 1.8; 
+    color: var(--text); margin-top: 30px; 
+    letter-spacing: 0.5px;
+  }
+  
+  .sleep-mode-active { filter: brightness(0.2) grayscale(0.5); transition: 8s ease; pointer-events: none; }
+</style>
+</head>
+<body>
+
+<div class="hero-video-container">
+  <video autoPlay loop muted playsInline>
+    <source src="https://res.cloudinary.com/dfonotyfb/video/upload/v1775585556/dds3_1_rqhg7x.mp4" type="video/mp4" />
+  </video>
+</div>
+
+<nav id="navbar">
+  <a href="index.html" class="logo">Clear<span>Mind</span></a>
+  <ul class="nav-links">
+    <li><a href="index.html">The OS</a></li>
+    <li><a href="breathing.html">Breath</a></li>
+    <li><a href="sounds.html">Frequencies</a></li>
+  </ul>
+  <button class="nav-cta" style="border-color:var(--rose); color:var(--rose);" onclick="logout()">Logout</button>
+</nav>
+
+<section class="sleep-container animate-in">
+  <div style="text-align:center;">
+    <p style="color:var(--teal-light); text-transform:uppercase; letter-spacing:4px; font-size:12px; margin-bottom:12px;">Circadian Rhythm</p>
+    <h2 style="font-size:54px; margin-bottom:20px;">The Evening Ritual</h2>
+    <p style="color:var(--text); max-width:600px; margin: 0 auto;">Curate your sensory environment for deep, restorative neuro-regeneration.</p>
+    <button id="unlockBtn" class="btn-primary" style="margin-top:30px;" onclick="unlockAudio()">🔊 Activate Sensory Audio</button>
+  </div>
+
+  <div class="mixer-grid" id="mixerUI" style="opacity: 0.2; pointer-events: none; transition: 1s ease;">
+    <div class="sound-card glass">
+      <div style="font-size:36px; margin-bottom:10px;">🌧️</div>
+      <div style="font-size:12px; text-transform:uppercase; letter-spacing:1px;">Soft Rain</div>
+      <input type="range" min="0" max="100" value="0" class="vol-slider" oninput="updateVol('rain', this.value)">
+    </div>
+    <div class="sound-card glass">
+      <div style="font-size:36px; margin-bottom:10px;">🔥</div>
+      <div style="font-size:12px; text-transform:uppercase; letter-spacing:1px;">Fireplace</div>
+      <input type="range" min="0" max="100" value="0" class="vol-slider" oninput="updateVol('fire', this.value)">
+    </div>
+    <div class="sound-card glass">
+      <div style="font-size:36px; margin-bottom:10px;">🌲</div>
+      <div style="font-size:12px; text-transform:uppercase; letter-spacing:1px;">Night Forest</div>
+      <input type="range" min="0" max="100" value="0" class="vol-slider" oninput="updateVol('forest', this.value)">
+    </div>
+    <div class="sound-card glass">
+      <div style="font-size:36px; margin-bottom:10px;">🌊</div>
+      <div style="font-size:12px; text-transform:uppercase; letter-spacing:1px;">Ocean Waves</div>
+      <input type="range" min="0" max="100" value="0" class="vol-slider" oninput="updateVol('ocean', this.value)">
+    </div>
+  </div>
+
+  <div class="timer-box glass animate-in" style="animation-delay: 0.2s;">
+    <h3 style="font-size:22px; margin-bottom:25px; letter-spacing:1px;">Drift Timer</h3>
+    <div class="timer-btn-group">
+      <button class="timer-btn" onclick="setTimer(15, this)">15m</button>
+      <button class="timer-btn active" onclick="setTimer(30, this)">30m</button>
+      <button class="timer-btn" onclick="setTimer(60, this)">60m</button>
+      <button class="timer-btn" onclick="setTimer(90, this)">90m</button>
+      <button class="timer-btn" style="border-color:var(--rose); color:var(--rose);" onclick="stopAll()">Disable</button>
+    </div>
+    <p id="timerDisplay" style="margin-top:20px; color:var(--teal-light); font-size:13px; text-transform:uppercase; letter-spacing:1px;">Inactive</p>
+  </div>
+
+  <div class="story-box glass animate-in" style="animation-delay: 0.4s;">
+    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:20px;">
+      <div>
+        <h3 style="font-size:32px; margin-bottom:5px;">Zenith Chronicles</h3>
+        <p style="color:var(--text); font-size:14px;">AI-generated narratives for somatic relaxation.</p>
+      </div>
+      <button class="btn-primary" style="padding:12px 30px; font-size:14px;" onclick="generateStory()" id="storyBtn">Compose Story</button>
+    </div>
+    <div id="storyContent" style="display:none;">
+      <h4 id="storyTitle" style="color:var(--teal-light); margin-top:40px; font-size:26px; font-family:var(--font-serif);"></h4>
+      <div id="storyText"></div>
+      <button class="btn-primary" style="margin-top:40px; background:var(--midnight); border:1px solid var(--teal);" onclick="narrateStory()">🔊 Begin Narration</button>
+    </div>
+  </div>
+</section>
+
+<div id="toast">
+  <div id="toast-title" style="font-weight:600; font-size:14px; color:var(--teal-light);"></div>
+  <div id="toast-msg" style="font-size:12px; color:#ccc;"></div>
+</div>
+
+<script src="shared.js"></script>
+<script>
+if(!checkAuth()){}
+
+function unlockAudio() {
+  if (Howler.ctx && Howler.ctx.state === 'suspended') Howler.ctx.resume();
+  document.getElementById('unlockBtn').style.display = 'none';
+  document.getElementById('mixerUI').style.opacity = '1';
+  document.getElementById('mixerUI').style.pointerEvents = 'all';
+  showToast('Senses Activated', 'Begin your nocturnal synchronization.');
+}
+
+const sounds = {
+  rain: new Howl({ src: ['https://actions.google.com/sounds/v1/water/rain_on_roof.ogg'], loop: true, volume: 0 }),
+  fire: new Howl({ src: ['https://actions.google.com/sounds/v1/ambiences/fire.ogg'], loop: true, volume: 0 }),
+  forest: new Howl({ src: ['https://actions.google.com/sounds/v1/ambiences/forest_ambience.ogg'], loop: true, volume: 0 }),
+  ocean: new Howl({ src: ['https://actions.google.com/sounds/v1/water/waves_crashing_on_rocks.ogg'], loop: true, volume: 0 })
+};
+
+function updateVol(key, val) {
+  const v = val / 100;
+  if (!sounds[key].playing()) sounds[key].play();
+  sounds[key].volume(v);
+  if (v === 0) sounds[key].pause();
+}
+
+let timerInterval;
+function setTimer(mins, btn) {
+  document.querySelectorAll('.timer-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  clearInterval(timerInterval);
+  let seconds = mins * 60;
+  timerInterval = setInterval(() => {
+    seconds--;
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    document.getElementById('timerDisplay').textContent = `Fading in ${m}:${s.toString().padStart(2,'0')}`;
+    if (seconds <= 60) {
+       for(let key in sounds) {
+         const curVol = sounds[key].volume();
+         if(curVol > 0) sounds[key].volume(curVol * 0.98);
+       }
+    }
+    if (seconds <= 0) {
+      stopAll();
+      document.body.classList.add('sleep-mode-active');
+    }
+  }, 1000);
+  showToast('Timer Active', `Neural fade initiated for ${mins}m.`);
+}
+
+function stopAll() {
+  clearInterval(timerInterval);
+  for(let key in sounds) sounds[key].stop();
+  document.getElementById('timerDisplay').textContent = 'Fading Disabled';
+  speechSynthesis.cancel();
+}
+
+async function generateStory() {
+  const btn = document.getElementById('storyBtn');
+  btn.textContent = 'Aura is composing...';
+  btn.disabled = true;
+  try {
+    const res = await fetch(`${API_BASE}/ai/sleep-story`, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json', 'Authorization': `Bearer ${authToken}`}
+    });
+    const data = await res.json();
+    document.getElementById('storyContent').style.display = 'block';
+    document.getElementById('storyTitle').textContent = data.title;
+    document.getElementById('storyText').textContent = data.story;
+    btn.style.display = 'none';
+    showToast('Chronicle Ready', 'Tonight\'s narrative has been woven.');
+  } catch(e) {
+    showToast('Error', 'Neural link failed.');
+    btn.textContent = 'Try Again';
+    btn.disabled = false;
+  }
+}
+
+function narrateStory() {
+  const text = document.getElementById('storyText').textContent;
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.rate = 0.75; utterance.pitch = 0.85;
+  speechSynthesis.speak(utterance);
+  showToast('Narration Started', 'Syncing breath with narrative.');
+}
+
+const urlParams = new URLSearchParams(window.location.search);
+if(urlParams.get('start') === 'true') setTimeout(generateStory, 1000);
+</script>
+</body>
+</html>

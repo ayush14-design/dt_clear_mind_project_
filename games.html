@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mindful Play — ClearMind</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+  .game-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 30px; margin-top: 40px; }
+  .game-card { padding: 40px; border-radius: 24px; text-align: center; }
+
+  /* Memory Game Modal & UI */
+  .modal-overlay { position: fixed; inset: 0; background: rgba(3,5,12,0.95); backdrop-filter: blur(20px); z-index: 2000; display: none; align-items: center; justify-content: center; padding: 20px; transition: var(--transition); }
+  .modal-overlay.open { display: flex; }
+  .game-modal { background: var(--midnight); border: 1px solid var(--glass-border); border-radius: 32px; width: 100%; max-width: 500px; padding: 40px; position: relative; box-shadow: 0 30px 60px rgba(0,0,0,0.8); }
+  
+  .memory-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 25px 0; perspective: 1000px; }
+  .memory-card { height: 85px; background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); border-radius: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 32px; transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1); transform-style: preserve-3d; position: relative; }
+  .memory-card.flipped { transform: rotateY(180px); }
+  .memory-card .back, .memory-card .front { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; display: flex; align-items: center; justify-content: center; border-radius: 15px; }
+  .memory-card .front { transform: rotateY(180px); background: rgba(13, 148, 136, 0.15); border: 1px solid var(--teal); }
+  .memory-card.matched { background: rgba(13, 148, 136, 0.3); cursor: default; border-color: var(--teal-light); }
+  
+  .game-stats { display: flex; justify-content: space-between; margin-bottom: 25px; color: var(--text); font-size: 13px; text-transform: uppercase; letter-spacing: 1px; }
+  .close-game { position: absolute; top: 25px; right: 25px; color: var(--text); background: none; border: none; font-size: 28px; cursor: pointer; transition: var(--transition); }
+  .close-game:hover { color: var(--rose); transform: rotate(90deg); }
+</style>
+</head>
+<body>
+
+<div class="hero-video-container">
+  <video autoPlay loop muted playsInline>
+    <source src="https://res.cloudinary.com/dfonotyfb/video/upload/v1775585556/dds3_1_rqhg7x.mp4" type="video/mp4" />
+  </video>
+</div>
+
+<nav id="navbar">
+  <a href="index.html" class="logo">Clear<span>Mind</span></a>
+  <ul class="nav-links">
+    <li><a href="index.html">The OS</a></li>
+    <li><a href="breathing.html">Breath</a></li>
+    <li><a href="sounds.html">Frequencies</a></li>
+  </ul>
+  <button class="nav-cta" style="border-color:var(--rose); color:var(--rose);" onclick="logout()">Logout</button>
+</nav>
+
+<section id="games-section" class="animate-in">
+  <p style="color:var(--teal-light); text-transform:uppercase; letter-spacing:2px; font-size:12px; margin-bottom:12px;">Interruption Therapy</p>
+  <h2 style="font-size:48px; margin-bottom:20px;">Mindful Games</h2>
+  <p style="color:var(--text); max-width:600px; margin-bottom:40px;">Short, focused activities designed to break stress spirals and restore cognitive balance.</p>
+
+  <div class="game-container">
+    <div class="game-card glass">
+      <div style="font-size:48px; margin-bottom:24px;">🧩</div>
+      <h3 style="font-size:26px; margin-bottom:15px;">Memory Match</h3>
+      <p style="font-size:14px; color:var(--text); margin-bottom:30px;">Sharpen your focus by matching calming nature symbols.</p>
+      <button class="btn-primary" onclick="startMemoryGame()">Play Now</button>
+    </div>
+    
+    <div class="game-card glass">
+      <div style="font-size:48px; margin-bottom:24px;">✨</div>
+      <h3 style="font-size:26px; margin-bottom:15px;">Mindful Dots</h3>
+      <p style="font-size:14px; color:var(--text); margin-bottom:30px;">A flow-state game of rhythmic connection and light.</p>
+      <button class="btn-primary" onclick="startDotsGame()">Play Now</button>
+    </div>
+
+    <div class="game-card glass" style="opacity: 0.5;">
+      <div style="font-size:48px; margin-bottom:24px;">🎨</div>
+      <h3 style="font-size:26px; margin-bottom:15px;">Color Flow</h3>
+      <p style="font-size:14px; color:var(--text); margin-bottom:30px;">Experimental: Chromatic relaxation therapy.</p>
+      <button class="nav-cta" disabled>Coming Soon</button>
+    </div>
+  </div>
+</section>
+
+<!-- Memory Game Modal -->
+<div class="modal-overlay" id="memoryModal">
+  <div class="game-modal">
+    <button class="close-game" onclick="closeMemoryGame()">&times;</button>
+    <h3 style="font-size:32px; text-align:center; margin-bottom:10px;">Memory Match</h3>
+    <p style="font-size:14px; color:var(--text); text-align:center; margin-bottom:30px;">Calm your focus by finding pairs.</p>
+    
+    <div class="game-stats">
+      <span>Moves: <b id="movesCount" style="color:var(--white);">0</b></span>
+      <span>Time: <b id="gameTimer" style="color:var(--white);">0:00</b></span>
+    </div>
+
+    <div class="memory-grid" id="memoryGrid"></div>
+    
+    <div id="gameComplete" style="display:none; text-align:center; margin-top:20px;">
+      <h4 style="color:var(--teal-light); font-size:24px; margin-bottom:10px;">Focus Restored</h4>
+      <p style="font-size:14px; color:var(--text); margin-bottom:25px;">You've successfully cleared the mental noise.</p>
+      <button class="btn-primary" onclick="startMemoryGame()">Play Again</button>
+    </div>
+  </div>
+</div>
+
+<!-- Mindful Dots Modal -->
+<div class="modal-overlay" id="dotsModal">
+  <div class="game-modal" style="max-width: 650px;">
+    <button class="close-game" onclick="closeDotsGame()">&times;</button>
+    <h3 style="font-size:32px; text-align:center; margin-bottom:10px;">Mindful Dots</h3>
+    <p style="font-size:14px; color:var(--text); text-align:center; margin-bottom:15px;">Connect nodes in sequence to enter a flow state.</p>
+    
+    <div style="text-align:center; margin-bottom:15px; font-size:12px; color:var(--teal-light); text-transform:uppercase; letter-spacing:1px;" id="dotsStatus">Awaiting first connection...</div>
+
+    <div style="position:relative; width:100%; height:350px; background:rgba(255,255,255,0.02); border-radius:24px; overflow:hidden; border:1px solid var(--glass-border);" id="dotsContainer">
+      <canvas id="dotsCanvas" style="position:absolute; top:0; left:0; width:100%; height:100%;"></canvas>
+    </div>
+    
+    <div id="dotsComplete" style="display:none; text-align:center; margin-top:25px;">
+      <h4 style="color:var(--teal-light); font-size:24px; margin-bottom:10px;">Flow Achieved</h4>
+      <p style="font-size:14px; color:var(--text); margin-bottom:25px;">Your internal rhythm is now synchronized.</p>
+      <button class="btn-primary" onclick="startDotsGame()">New Pattern</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast">
+  <div id="toast-title" style="font-weight:600; font-size:14px; color:var(--teal-light);"></div>
+  <div id="toast-msg" style="font-size:12px; color:#ccc;"></div>
+</div>
+
+<script src="shared.js"></script>
+<script>
+  let cards = [];
+  let flippedCards = [];
+  let matchedPairs = 0;
+  let moves = 0;
+  let timerInterval = null;
+  let seconds = 0;
+
+  const emojis = ['🌿', '🌊', '🌸', '🍃', '☀️', '🌕', '🌲', '🏔️'];
+  
+  function startMemoryGame() {
+    const modal = document.getElementById('memoryModal');
+    const grid = document.getElementById('memoryGrid');
+    const completeUI = document.getElementById('gameComplete');
+    
+    modal.classList.add('open');
+    grid.innerHTML = '';
+    grid.style.display = 'grid';
+    completeUI.style.display = 'none';
+    matchedPairs = 0;
+    moves = 0;
+    seconds = 0;
+    flippedCards = [];
+    document.getElementById('movesCount').textContent = '0';
+    document.getElementById('gameTimer').textContent = '0:00';
+    
+    startTimer();
+    const deck = [...emojis, ...emojis].sort(() => Math.random() - 0.5);
+    
+    deck.forEach((emoji, index) => {
+      const card = document.createElement('div');
+      card.className = 'memory-card';
+      card.dataset.emoji = emoji;
+      card.innerHTML = `<div class="back"></div><div class="front">${emoji}</div>`;
+      card.onclick = () => flipCard(card);
+      grid.appendChild(card);
+    });
+  }
+
+  function flipCard(card) {
+    if (flippedCards.length === 2 || card.classList.contains('flipped') || card.classList.contains('matched')) return;
+    card.classList.add('flipped');
+    flippedCards.push(card);
+    if (flippedCards.length === 2) {
+      moves++;
+      document.getElementById('movesCount').textContent = moves;
+      checkMatch();
+    }
+  }
+
+  function checkMatch() {
+    const [card1, card2] = flippedCards;
+    if (card1.dataset.emoji === card2.dataset.emoji) {
+      card1.classList.add('matched');
+      card2.classList.add('matched');
+      matchedPairs++;
+      flippedCards = [];
+      if (matchedPairs === emojis.length) endGame();
+    } else {
+      setTimeout(() => {
+        card1.classList.remove('flipped');
+        card2.classList.remove('flipped');
+        flippedCards = [];
+      }, 800);
+    }
+  }
+
+  function startTimer() {
+    clearInterval(timerInterval);
+    timerInterval = setInterval(() => {
+      seconds++;
+      const mins = Math.floor(seconds / 60);
+      const secs = seconds % 60;
+      document.getElementById('gameTimer').textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
+    }, 1000);
+  }
+
+  async function endGame() {
+    clearInterval(timerInterval);
+    document.getElementById('memoryGrid').style.display = 'none';
+    document.getElementById('gameComplete').style.display = 'block';
+    try {
+      await fetch(`${API_BASE}/session`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` },
+        body: JSON.stringify({ type: 'game', duration: Math.max(1, Math.round(seconds / 60)), activity: 'Memory Match' })
+      });
+    } catch (e) {}
+  }
+
+  function closeMemoryGame() { clearInterval(timerInterval); document.getElementById('memoryModal').classList.remove('open'); }
+
+  // --- Mindful Dots Logic ---
+  let dots = [];
+  let currentDotIndex = 0;
+  let dotsCanvas, dotsCtx;
+
+  function startDotsGame() {
+    document.getElementById('dotsModal').classList.add('open');
+    document.getElementById('dotsCanvas').style.display = 'block';
+    document.getElementById('dotsComplete').style.display = 'none';
+    document.getElementById('dotsStatus').textContent = 'Connect in order: 1 to 5';
+    
+    dotsCanvas = document.getElementById('dotsCanvas');
+    dotsCtx = dotsCanvas.getContext('2d');
+    const container = document.getElementById('dotsContainer');
+    dotsCanvas.width = container.clientWidth;
+    dotsCanvas.height = container.clientHeight;
+    
+    generateDots();
+    drawDots();
+    dotsCanvas.onclick = handleDotsClick;
+  }
+
+  function generateDots() {
+    dots = []; currentDotIndex = 0;
+    const padding = 60;
+    for(let i=0; i<5; i++) {
+      dots.push({
+        x: padding + Math.random() * (dotsCanvas.width - padding*2),
+        y: padding + Math.random() * (dotsCanvas.height - padding*2),
+        radius: 22, id: i + 1, active: i === 0, completed: false
+      });
+    }
+  }
+
+  function drawDots() {
+    dotsCtx.clearRect(0, 0, dotsCanvas.width, dotsCanvas.height);
+    dotsCtx.beginPath();
+    dotsCtx.strokeStyle = 'rgba(13, 148, 136, 0.4)';
+    dotsCtx.lineWidth = 3;
+    for(let i=0; i<dots.length-1; i++) {
+      if(dots[i].completed && dots[i+1].completed) {
+        dotsCtx.moveTo(dots[i].x, dots[i].y);
+        dotsCtx.lineTo(dots[i+1].x, dots[i+1].y);
+      }
+    }
+    dotsCtx.stroke();
+
+    dots.forEach(dot => {
+      dotsCtx.beginPath();
+      dotsCtx.arc(dot.x, dot.y, dot.radius, 0, Math.PI*2);
+      if(dot.completed) {
+        dotsCtx.fillStyle = '#0d9488';
+        dotsCtx.shadowBlur = 20; dotsCtx.shadowColor = '#0d9488';
+      } else if(dot.active) {
+        dotsCtx.fillStyle = '#14b8a6';
+        dotsCtx.shadowBlur = 25; dotsCtx.shadowColor = '#14b8a6';
+      } else {
+        dotsCtx.fillStyle = 'rgba(255,255,255,0.08)';
+        dotsCtx.shadowBlur = 0;
+      }
+      dotsCtx.fill();
+      dotsCtx.fillStyle = '#fff';
+      dotsCtx.font = '600 13px DM Sans';
+      dotsCtx.textAlign = 'center';
+      dotsCtx.fillText(dot.id, dot.x, dot.y + 5);
+    });
+  }
+
+  function handleDotsClick(e) {
+    const rect = dotsCanvas.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const target = dots[currentDotIndex];
+    const dist = Math.sqrt((x - target.x)**2 + (y - target.y)**2);
+    
+    if(dist < target.radius + 15) {
+      target.completed = true; target.active = false;
+      currentDotIndex++;
+      if(currentDotIndex < dots.length) {
+        dots[currentDotIndex].active = true;
+        document.getElementById('dotsStatus').textContent = `Next: Node ${currentDotIndex + 1}`;
+      } else { endDotsGame(); }
+      drawDots();
+    }
+  }
+
+  async function endDotsGame() {
+    document.getElementById('dotsCanvas').style.display = 'none';
+    document.getElementById('dotsComplete').style.display = 'block';
+    document.getElementById('dotsStatus').textContent = 'Sequence Synchronized';
+    try {
+      await fetch(`${API_BASE}/session`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` },
+        body: JSON.stringify({ type: 'game', duration: 1, activity: 'Mindful Dots' })
+      });
+    } catch (e) {}
+  }
+
+  function closeDotsGame() { document.getElementById('dotsModal').classList.remove('open'); }
+</script>
+</body>
+</html>

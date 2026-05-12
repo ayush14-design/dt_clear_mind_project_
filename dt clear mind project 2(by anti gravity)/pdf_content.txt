@@ -1,0 +1,173 @@
+PRODUCT DEVELOPMENT CANVAS 
+Clear Mind  ·  AI Stress Management Platform❓  Purpose ⚙  Components✅  Customer 
+Revalidation
+Working professionals — in tech, 
+finance, healthcare and law — battle 
+chronic stress and burnout every day, 
+yet lack a personalised, instant tool 
+for relief.
+What We're Solving
+Generic apps — they giv e the  
+same c ontent to everyone — not  
+personal enough.
+No instant help — user s need a 2-
+minut e fix, not a 30-minut e session.
+Mood-blind tools — no app  
+check s how you're feeling and  
+recommends the righ t exercise.
+Sleep & fog ignored — burnout  
+causes sleep disrup tion, but f ew 
+apps addr ess it dir ectly .
+No progress story — streaks and  
+roadmap s keep user s eng aged long-
+term.
+Our Mission
+Give every stressed pr ofessional an AI-
+powered per sonal w ellness c oach —  
+available in sec onds, per sonalised t o their  
+indus try, mood, and g oals.The technical building blocks that 
+power Clear Mind.
+AI & Intelligence
+Aura (Gemini 2.0 Flash) — root-
+cause s tress analy sis, 7-da y 
+roadmap g ener ation, bedtime  
+stories.
+Mood Engine — 5 emoji s tates + 
+intensity slider + sen timen t tagging.
+Proactive Alerts — auto-de tects 
+3-da y mood dr ops and sug gests 
+intervention.
+Wellness Modules
+Breathing Engine — Box 4-4-4-4,  
+4-7-8, Deep R eset with anima ted 
+visuals.
+Sound Therapy — Alpha / Delt a / 
+Theta binaur al bea ts.
+Mindful Games — memor y ma tch 
+to interrup t stress spir als.
+Guided Journal — mood-link ed 
+promp ts + fr ee-form writing.
+Sleep Assistant — AI stories +  
+ambien t sound mix er.
+Tech Stack
+Frontend — HTML5 · CSS3 · V anilla  
+JS
+Backend — Node.js + Expr ess ·  
+JWT Auth · bcr ypt
+AI — Google Gener ative AI SDK  
+(Gemini 2.0 Flash)How we validate that Clear Mind is 
+truly making a difference.
+Validation Methods
+User Interviews — ask 
+professionals which f eatures the y 
+actually use w eek-to-week.
+Streak & Session Data — are 
+user s returning daily? minut es 
+spen t impr oving?
+Mood Delta Tracking — compar e 
+mood sc ores be fore vs. after 7-da y 
+roadmap.
+Aura Feedback Loop — rate each  
+AI response — learn wha t advice  
+resona tes.
+A/B Roadmap Test — user s with  
+roadmap v s. without — who  
+impr oves faster?
+Reject · Redesign · Retain
+Reject — long-winded AI  
+responses tha t slo w the user do wn.
+Reject — comple x onboar ding flo w 
+— too man y steps before first value.
+Redesign — onboar ding — short er, 
+friendlier , with ins tant 'quick r elief' 
+mode.
+Redesign — dashboar d layout —  
+surface s treak + r oadmap mor e 
+prominen tly.
+Retain — mood-based t ool 
+suggestions, s treak s ystem, 
+personaliz ed AI r oadmap.
+Retain — binaur al bea ts + 
+breathing anima tions — highes t 
+session r atings.👥  People 🌟  Product Features🎨  Product Experience
+Who benefits from Clear Mind and 
+who helps make it work.
+Primary Users
+Tech Workers (25–45) — 
+deadline pr essur e, scr een f atigue,  
+always-on cultur e.
+Finance & Legal Professionals — 
+high s takes, long hour s, cognitiv e 
+overload.
+Healthcare Workers — emotional  
+burnout, c ompassion f atigue,  
+irregular shifts.
+Supporting Stakeholders
+Managers & Team Leads — 
+advocate for team w ellness  
+programs.
+HR Departments — recommend  
+as an emplo yee w ellness bene fit.
+Mental Health Advocates — 
+endor se science-back ed self -care 
+tools.
+Pain Points We Address
+No time — micr o-interventions in  
+2–5 minut es fit bus y schedules.
+Generic advice — Aura 
+personalises b y indus try, mood, and  
+history.
+No accountability — streaks + 
+roadmap cr eate daily habit loop s.Six core features — each mapped to a 
+real user need.
+1 · Mood Log
+Emoji select or + 1–10 in tensity + op tional  
+note. Ins tant tool r ecommenda tion a fter 
+logging.
+2 · Chat with Aura
+AI w ellness c oach. Iden tifies r oot c ause of  
+stress and builds a cus tom micr o-
+intervention plan.
+3 · Breathing Exercises
+4-7-8 (an xiety), Bo x 4-4-4-4 (s tress r eset), 
+Deep R eset (fatigue). Anima ted cir cle 
+guidance.
+4 · Sound Therapy
+Alpha (f ocus), Delt a (deep sleep), The ta 
+(calm). Binaur al bea ts with timer c ontrols.
+5 · Sleep Assistant
+AI writ es a unique 300-w ord bedtime  
+story on demand. P airs with ambien t 
+sound mix er.
+6 · 7-Day Roadmap
+Aura gener ates a per sonalised w eek-long  
+wellness plan — in ternal t ools + Y ouTube 
++ book s.The feeling, look, and journey of using 
+Clear Mind every day.
+Visual Identity
+Midnight background (#03050C) 
+— calming , reduces e ye strain 
+during nigh t use.
+Teal accent (#00C9A7) — feels 
+healing , fresh, and dis tinctly non-
+clinic al.
+Animated starfield — immer sive, 
+peace ful, lik e a quie t nigh t sky .
+Glass morphism cards — frosted 
+blur e ffect — modern and pr emium.
+Typography
+Cormorant Garamond — elegant 
+serif f or headings — c alm authority .
+DM Sans — clean sans-serif f or 
+body — highly r eadable.
+User Journey
+Day 1 — sign up → AI onboar ding  
+→ log mood → ins tant sug gestion.
+Daily — check -in → br eathe / lis ten 
+/ pla y → journal → s treak gr ows.
+Week 1 — Aura builds r oadmap →  
+daily activities → mood tr ends  
+impr ove.
+Long-term — Aura remember s 
+history → advice g ets smart er over 
+time.

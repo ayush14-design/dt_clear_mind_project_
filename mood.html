@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mood Tracker — ClearMind</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+  .mood-picker { display: flex; justify-content: center; gap: 20px; margin: 30px 0; }
+  .mood-btn { 
+    width: 70px; height: 70px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.1); 
+    background: rgba(255,255,255,0.03); font-size: 32px; cursor: pointer; transition: 0.3s;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .mood-btn:hover { border-color: var(--teal); transform: scale(1.1); }
+  .mood-btn.active { background: var(--teal); border-color: var(--teal); color: var(--deep); box-shadow: 0 0 20px var(--teal-glow); }
+  
+  .intensity-slider { width: 100%; margin: 20px 0; accent-color: var(--teal); }
+  
+  .chart-container { background: rgba(255,255,255,0.02); border-radius: 24px; padding: 30px; margin-top: 40px; border: 1px solid rgba(255,255,255,0.05); }
+  
+  textarea { 
+    width: 100%; height: 120px; background: rgba(255,255,255,0.03); 
+    border: 1px solid rgba(255,255,255,0.1); border-radius: 15px; 
+    padding: 20px; color: white; font-family: 'DM Sans', sans-serif; resize: none; outline: none; margin-top: 20px;
+  }
+</style>
+</head>
+<body>
+
+<div class="hero-video-container">
+  <video autoPlay loop muted playsInline>
+    <source src="https://res.cloudinary.com/dfonotyfb/video/upload/v1775585556/dds3_1_rqhg7x.mp4" type="video/mp4" />
+  </video>
+</div>
+
+<nav id="navbar">
+  <a href="index.html" class="logo">Clear<span>Mind</span></a>
+  <ul class="nav-links">
+    <li><a href="index.html">The OS</a></li>
+    <li><a href="breathing.html">Breath</a></li>
+    <li><a href="journal.html">Journal</a></li>
+  </ul>
+  <button class="nav-cta" style="border:1px solid var(--rose); color:var(--rose); padding:8px 20px; border-radius:20px; background:none; cursor:pointer;" onclick="logout()">Logout</button>
+</nav>
+
+<section>
+  <div style="text-align:center; max-width: 800px; margin: 0 auto;">
+    <p style="color:var(--teal-light); text-transform:uppercase; letter-spacing:2px; font-size:12px; margin-bottom:10px;">Daily Check-In</p>
+    <h2 style="font-family:'Cormorant Garamond',serif; font-size:48px; font-weight:300;">How are you feeling?</h2>
+    
+    <div class="mood-picker" id="emojiPicker">
+      <button class="mood-btn" onclick="selectMood(this, 'Happy', '😌')" title="Happy">😌</button>
+      <button class="mood-btn" onclick="selectMood(this, 'Calm', '🙂')" title="Calm">🙂</button>
+      <button class="mood-btn active" onclick="selectMood(this, 'Neutral', '😐')" title="Neutral">😐</button>
+      <button class="mood-btn" onclick="selectMood(this, 'Anxious', '😟')" title="Anxious">😟</button>
+      <button class="mood-btn" onclick="selectMood(this, 'Sad', '😤')" title="Sad/Angry">😤</button>
+    </div>
+
+    <div style="margin: 40px 0;">
+      <label style="font-size:14px; color:var(--text); display:block; margin-bottom:10px;">Intensity Level: <span id="intensityVal">5</span>/10</label>
+      <input type="range" min="1" max="10" value="5" class="intensity-slider" id="intensitySlider" oninput="document.getElementById('intensityVal').textContent=this.value">
+    </div>
+
+    <textarea id="moodNote" placeholder="Any private notes about your day? (Optional)"></textarea>
+    
+    <button class="btn-primary" style="width:100%; margin-top:20px;" onclick="saveMood()">Log Mood State</button>
+  </div>
+
+  <!-- Aura Analysis Modal -->
+  <div class="modal-overlay" id="auraModal">
+    <div class="modal animate-in" style="max-width:650px;">
+      <div style="text-align:center; margin-bottom:32px;">
+        <div style="font-size:48px; margin-bottom:16px;">✨</div>
+        <h2 style="font-size:36px; margin-bottom:8px; color:white;">Aura Mood Analysis</h2>
+        <p style="color:var(--teal-light); font-size:12px; text-transform:uppercase; letter-spacing:2px;">Advanced Neural Synthesis</p>
+      </div>
+      
+      <div id="auraAnalysisContent" style="font-size:18px; line-height:1.6; color:var(--white); margin-bottom:40px; font-weight:300; font-style:italic;">
+        Analyzing your aura...
+      </div>
+
+      <div id="auraSolutions">
+        <div style="font-size:11px; text-transform:uppercase; letter-spacing:2px; color:var(--teal-light); margin-bottom:20px;">Precision Solutions</div>
+        <div id="solutionsList" style="display:flex; flex-direction:column; gap:16px;"></div>
+      </div>
+
+      <button class="btn-primary" style="width:100%; margin-top:40px;" onclick="closeAuraModal()">Acknowledge</button>
+      <button onclick="closeAuraModal()" style="position:absolute; top:20px; right:20px; background:none; border:none; color:var(--text); font-size:24px; cursor:pointer;">&times;</button>
+    </div>
+  </div>
+
+  <div class="chart-container">
+    <h3 style="font-family:'Cormorant Garamond',serif; font-size:24px; margin-bottom:20px;">Mood Patterns (Last 7 Days)</h3>
+    <canvas id="moodChart" height="100"></canvas>
+  </div>
+</section>
+
+<div id="toast">
+  <div id="toast-title" style="font-weight:600; font-size:14px; color:var(--teal-light);"></div>
+  <div id="toast-msg" style="font-size:12px; color:#ccc;"></div>
+</div>
+
+<script src="shared.js"></script>
+<script>
+let currentEmoji = '😐';
+let currentLabel = 'Neutral';
+
+function selectMood(btn, label, emoji) {
+  document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  currentEmoji = emoji;
+  currentLabel = label;
+}
+
+function openAuraModal() { document.getElementById('auraModal').classList.add('open'); }
+function closeAuraModal() { document.getElementById('auraModal').classList.remove('open'); }
+
+async function startAuraAnalysis(mood, intensity, note) {
+  openAuraModal();
+  document.getElementById('auraAnalysisContent').textContent = 'Consulting Aura v2 Engine...';
+  document.getElementById('solutionsList').innerHTML = '';
+  
+  try {
+    const res = await fetch(`${API_BASE}/ai/analyze-mood`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` },
+      body: JSON.stringify({ mood, intensity, note })
+    });
+    const data = await res.json();
+    
+    document.getElementById('auraAnalysisContent').textContent = `"${data.analysis}"`;
+    document.getElementById('solutionsList').innerHTML = data.solutions.map(sol => `
+      <div class="glass" style="padding:16px; border-left: 3px solid var(--teal-light); font-size:14px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); border-radius: 10px;">
+        ${sol}
+      </div>
+    `).join('');
+    
+  } catch (err) {
+    document.getElementById('auraAnalysisContent').textContent = 'Neural synchronization failure. Please try again.';
+  }
+}
+
+async function saveMood() {
+  const intensity = document.getElementById('intensitySlider').value;
+  const note = document.getElementById('moodNote').value;
+
+  try {
+    const res = await fetch(`${API_BASE}/mood`, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json', 'Authorization': `Bearer ${authToken}`},
+      body: JSON.stringify({ emoji: currentEmoji, label: currentLabel, note, intensity: parseInt(intensity) })
+    });
+    const data = await res.json();
+    
+    showToast('Mood Logged', 'Your state has been recorded.');
+    
+    // Trigger Aura Analysis
+    startAuraAnalysis(currentLabel, intensity, note);
+    
+    // Refresh Chart
+    loadHistory();
+  } catch(e) {
+    showToast('Error', 'Failed to save mood.');
+  }
+}
+
+async function loadHistory() {
+  try {
+    const res = await fetch(`${API_BASE}/mood/history`, {
+      headers: {'Authorization': `Bearer ${authToken}`}
+    });
+    const history = await res.json();
+    renderChart(history.slice(-7));
+  } catch(e) {}
+}
+
+let chart;
+function renderChart(data) {
+  const ctx = document.getElementById('moodChart').getContext('2d');
+  if(chart) chart.destroy();
+  
+  const labels = data.map(m => new Date(m.timestamp).toLocaleDateString(undefined, {weekday:'short'}));
+  const values = data.map(m => m.intensity);
+  
+  chart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        label: 'Mood Intensity',
+        data: values,
+        borderColor: '#1db8a8',
+        backgroundColor: 'rgba(29, 184, 168, 0.1)',
+        fill: true,
+        tension: 0.4,
+        pointRadius: 5,
+        pointBackgroundColor: '#1db8a8'
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { display: false } },
+      scales: {
+        y: { min: 1, max: 10, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a9c9' } },
+        x: { grid: { display: false }, ticks: { color: '#94a9c9' } }
+      }
+    }
+  });
+}
+
+if(authToken) loadHistory();
+
+const urlParams = new URLSearchParams(window.location.search);
+if(urlParams.get('start') === 'true') {
+  setTimeout(() => {
+    showToast('Daily Check-In', 'Aura is waiting for your emotional status.');
+    document.getElementById('emojiPicker').scrollIntoView({behavior:'smooth'});
+  }, 1000);
+}
+</script>
+</body>
+</html>

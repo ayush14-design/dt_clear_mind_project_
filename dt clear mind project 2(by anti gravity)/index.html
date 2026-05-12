@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clear Mind | AI Wellness Platform</title>
+    <meta name="description" content="Clear Mind — your AI-powered personal wellness coach. Manage stress, track mood, and build healthy habits.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <canvas id="starfield"></canvas>
+
+    <!-- ── App Shell ─────────────────────────────────────────── -->
+    <div id="app" style="display:none;">
+
+        <!-- Sidebar Nav -->
+        <aside class="sidebar glass-sidebar" id="sidebar">
+            <div class="sidebar-logo">
+                <i class="fa-solid fa-leaf"></i>
+                <span>Clear Mind</span>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="#" class="nav-link active" data-page="dashboard">
+                    <i class="fa-solid fa-house"></i><span>Dashboard</span>
+                </a>
+                <a href="#" class="nav-link" data-page="mood">
+                    <i class="fa-regular fa-face-smile"></i><span>Mood Log</span>
+                </a>
+                <a href="#" class="nav-link" data-page="aura">
+                    <i class="fa-solid fa-sparkles"></i><span>Aura AI</span>
+                </a>
+                <a href="#" class="nav-link" data-page="breathe">
+                    <i class="fa-solid fa-wind"></i><span>Breathe</span>
+                </a>
+                <a href="#" class="nav-link" data-page="sound">
+                    <i class="fa-solid fa-headphones"></i><span>Sound Therapy</span>
+                </a>
+                <a href="#" class="nav-link" data-page="journal">
+                    <i class="fa-solid fa-book-open"></i><span>Journal</span>
+                </a>
+                <a href="#" class="nav-link" data-page="roadmap">
+                    <i class="fa-solid fa-map"></i><span>7-Day Roadmap</span>
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="streak-badge">
+                    <i class="fa-solid fa-fire"></i>
+                    <span id="sidebar-streak">0</span>
+                    <small>day streak</small>
+                </div>
+                <button id="logout-btn" class="logout-btn" title="Logout">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Mobile Top Bar -->
+        <header class="mobile-topbar glass-panel">
+            <button id="menu-toggle"><i class="fa-solid fa-bars"></i></button>
+            <div class="logo"><i class="fa-solid fa-leaf"></i> Clear Mind</div>
+            <div class="streak-badge-sm">
+                <i class="fa-solid fa-fire"></i><span id="mobile-streak">0</span>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content" id="main-content">
+
+            <!-- ── PAGE: DASHBOARD ──────────────────────────────────── -->
+            <section class="page active" id="page-dashboard">
+                <div class="page-header">
+                    <div>
+                        <h2 id="user-greeting" class="page-title">Good Evening</h2>
+                        <p class="page-subtitle" id="dashboard-subtitle">Here's your wellness snapshot for today.</p>
+                    </div>
+                    <div class="quick-stats">
+                        <div class="stat-chip"><i class="fa-solid fa-fire"></i><span id="stat-streak">0</span> day streak</div>
+                        <div class="stat-chip"><i class="fa-regular fa-calendar"></i><span id="stat-logs">—</span> moods logged</div>
+                    </div>
+                </div>
+
+                <!-- Quick Action Grid -->
+                <div class="quick-grid">
+                    <div class="quick-card glass-card teal-glow" data-goto="mood">
+                        <div class="quick-icon"><i class="fa-regular fa-face-smile"></i></div>
+                        <div>
+                            <h4>Log Your Mood</h4>
+                            <p>How are you feeling?</p>
+                        </div>
+                        <i class="fa-solid fa-arrow-right arrow-icon"></i>
+                    </div>
+                    <div class="quick-card glass-card" data-goto="aura">
+                        <div class="quick-icon"><i class="fa-solid fa-sparkles"></i></div>
+                        <div>
+                            <h4>Talk to Aura</h4>
+                            <p>Your AI wellness coach</p>
+                        </div>
+                        <i class="fa-solid fa-arrow-right arrow-icon"></i>
+                    </div>
+                    <div class="quick-card glass-card" data-goto="breathe">
+                        <div class="quick-icon"><i class="fa-solid fa-wind"></i></div>
+                        <div>
+                            <h4>Breathe</h4>
+                            <p>2-min reset exercise</p>
+                        </div>
+                        <i class="fa-solid fa-arrow-right arrow-icon"></i>
+                    </div>
+                    <div class="quick-card glass-card" data-goto="journal">
+                        <div class="quick-icon"><i class="fa-solid fa-book-open"></i></div>
+                        <div>
+                            <h4>Journal Entry</h4>
+                            <p>Write how you feel</p>
+                        </div>
+                        <i class="fa-solid fa-arrow-right arrow-icon"></i>
+                    </div>
+                </div>
+
+                <!-- Recent Moods -->
+                <div class="section-label">Recent Mood History</div>
+                <div class="mood-history-grid" id="mood-history-grid">
+                    <div class="empty-state"><i class="fa-regular fa-face-smile"></i><p>No moods logged yet. Start by logging your first mood!</p></div>
+                </div>
+
+                <!-- Today's Tip -->
+                <div class="section-label">Today's Wellness Tip</div>
+                <div class="tip-card glass-card" id="daily-tip">
+                    <i class="fa-solid fa-lightbulb tip-icon"></i>
+                    <p>"Even 5 minutes of slow, deep breathing can lower cortisol — the primary stress hormone — by up to 20%."</p>
+                </div>
+            </section>
+
+            <!-- ── PAGE: MOOD LOG ──────────────────────────────────── -->
+            <section class="page" id="page-mood">
+                <div class="page-header">
+                    <div>
+                        <h2 class="page-title">Mood Log</h2>
+                        <p class="page-subtitle">Check in with yourself. Awareness is the first step.</p>
+                    </div>
+                </div>
+
+                <div class="content-grid-2">
+                    <div class="glass-card">
+                        <h3 class="card-title"><i class="fa-regular fa-face-smile"></i> How are you feeling?</h3>
+                        <div class="emoji-row">
+                            <button class="emoji-btn" data-mood="Awful" data-emoji="😭">😭<span>Awful</span></button>
+                            <button class="emoji-btn" data-mood="Sad" data-emoji="😟">😟<span>Sad</span></button>
+                            <button class="emoji-btn active" data-mood="Okay" data-emoji="😐">😐<span>Okay</span></button>
+                            <button class="emoji-btn" data-mood="Good" data-emoji="🙂">🙂<span>Good</span></button>
+                            <button class="emoji-btn" data-mood="Great" data-emoji="🤩">🤩<span>Great</span></button>
+                        </div>
+                        <div class="slider-group">
+                            <div class="slider-label-row">
+                                <label>Stress Intensity</label>
+                                <span class="slider-value" id="intensity-display">5 / 10</span>
+                            </div>
+                            <input type="range" id="mood-intensity" min="1" max="10" value="5" class="teal-slider">
+                            <div class="slider-track-labels"><span>Low</span><span>High</span></div>
+                        </div>
+                        <div class="form-group">
+                            <label>Add a note (optional)</label>
+                            <textarea id="mood-note" rows="3" placeholder="What's on your mind right now?"></textarea>
+                        </div>
+                        <div id="mood-feedback" class="feedback-msg" style="display:none;"></div>
+                        <button class="btn-primary" id="log-mood-btn"><i class="fa-solid fa-check"></i> Log Mood</button>
+                    </div>
+
+                    <div class="glass-card">
+                        <h3 class="card-title"><i class="fa-solid fa-chart-line"></i> Your Mood History</h3>
+                        <div class="mood-history-list" id="mood-history-list">
+                            <div class="empty-state"><i class="fa-solid fa-chart-line"></i><p>Log your first mood to see history here.</p></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ── PAGE: AURA AI ───────────────────────────────────── -->
+            <section class="page" id="page-aura">
+                <div class="page-header">
+                    <div>
+                        <h2 class="page-title"><i class="fa-solid fa-sparkles" style="color:var(--teal)"></i> Aura AI Coach</h2>
+                        <p class="page-subtitle">Your personal AI wellness companion — always here to listen.</p>
+                    </div>
+                </div>
+                <div class="chat-shell glass-card">
+                    <div class="chat-header">
+                        <div class="aura-avatar"><i class="fa-solid fa-brain"></i></div>
+                        <div>
+                            <strong>Aura</strong>
+                            <span class="status-dot-text"><span class="status-dot"></span> Online</span>
+                        </div>
+                    </div>
+                    <div class="chat-messages" id="chat-messages">
+                        <div class="msg aura">
+                            <div class="msg-bubble">Hi! I'm Aura, your personal wellness coach. How are you feeling today? 💚</div>
+                        </div>
+                    </div>
+                    <div class="chat-input-row">
+                        <input type="text" id="chat-input" placeholder="Share how you're feeling…" autocomplete="off">
+                        <button class="btn-send" id="chat-send"><i class="fa-solid fa-paper-plane"></i></button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ── PAGE: BREATHE ──────────────────────────────────── -->
+            <section class="page" id="page-breathe">
+                <div class="page-header">
+                    <div>
+                        <h2 class="page-title">Breathing Exercises</h2>
+                        <p class="page-subtitle">Scientifically-backed breathing patterns to calm your nervous system.</p>
+                    </div>
+                </div>
+
+                <div class="breathe-layout">
+                    <div class="breathe-main glass-card">
+                        <div class="technique-tabs" id="technique-tabs">
+                            <button class="tab-btn active" data-technique="box">Box 4-4-4-4</button>
+                            <button class="tab-btn" data-technique="478">Relax 4-7-8</button>
+                            <button class="tab-btn" data-technique="deep">Deep Reset</button>
+                        </div>
+
+                        <div class="breathe-circle-container">
+                            <div class="outer-ring" id="breathe-outer-ring"></div>
+                            <div class="breathe-circle" id="breathe-circle">
+                                <span class="phase-label" id="phase-label">Ready</span>
+                                <span class="phase-count" id="phase-count"></span>
+                            </div>
+                        </div>
+
+                        <p class="technique-desc" id="technique-desc">Inhale for 4s, Hold for 4s, Exhale for 4s, Hold for 4s. Excellent for stress reset.</p>
+
+                        <div class="breathe-controls-row">
+                            <button class="btn-primary" id="breathe-toggle"><i class="fa-solid fa-play"></i> Start</button>
+                            <div class="cycles-display">Cycles: <span id="cycles-count">0</span></div>
+                        </div>
+                    </div>
+
+                    <div class="breathe-tips glass-card">
+                        <h3 class="card-title">💡 When to use each</h3>
+                        <div class="tip-item"><strong>Box 4-4-4-4</strong><p>Best for: Work stress, anxiety, focus reset. Used by Navy SEALs.</p></div>
+                        <div class="tip-item"><strong>Relax 4-7-8</strong><p>Best for: Falling asleep, acute anxiety, calming anger.</p></div>
+                        <div class="tip-item"><strong>Deep Reset</strong><p>Best for: Severe fatigue, burnout recovery, deep calm.</p></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ── PAGE: SOUND THERAPY ───────────────────────────── -->
+            <section class="page" id="page-sound">
+                <div class="page-header">
+                    <div>
+                        <h2 class="page-title">Sound Therapy</h2>
+                        <p class="page-subtitle">Binaural beats to guide your brain into the desired state.</p>
+                    </div>
+                </div>
+
+                <div class="sound-layout">
+                    <div class="sound-main glass-card">
+                        <div class="sound-options-grid" id="sound-options">
+                            <div class="sound-option active" data-freq="10" data-name="Alpha — Focus">
+                                <div class="sound-icon"><i class="fa-solid fa-brain"></i></div>
+                                <h4>Alpha</h4>
+                                <p>10 Hz • Focus & Calm</p>
+                                <div class="sound-waves"><span></span><span></span><span></span><span></span><span></span></div>
+                            </div>
+                            <div class="sound-option" data-freq="2" data-name="Delta — Deep Sleep">
+                                <div class="sound-icon"><i class="fa-solid fa-moon"></i></div>
+                                <h4>Delta</h4>
+                                <p>2 Hz • Deep Sleep</p>
+                                <div class="sound-waves"><span></span><span></span><span></span><span></span><span></span></div>
+                            </div>
+                            <div class="sound-option" data-freq="6" data-name="Theta — Meditation">
+                                <div class="sound-icon"><i class="fa-solid fa-water"></i></div>
+                                <h4>Theta</h4>
+                                <p>6 Hz • Meditation</p>
+                                <div class="sound-waves"><span></span><span></span><span></span><span></span><span></span></div>
+                            </div>
+                            <div class="sound-option" data-freq="40" data-name="Gamma — Memory">
+                                <div class="sound-icon"><i class="fa-solid fa-bolt"></i></div>
+                                <h4>Gamma</h4>
+                                <p>40 Hz • Cognition</p>
+                                <div class="sound-waves"><span></span><span></span><span></span><span></span><span></span></div>
+                            </div>
+                        </div>
+
+                        <div class="player-shell">
+                            <div class="now-playing" id="now-playing">Alpha — Focus</div>
+                            <div class="player-vis" id="player-vis">
+                                <div class="vis-bar" id="vis-bars"></div>
+                            </div>
+                            <div class="player-row">
+                                <button class="play-pause-btn" id="play-pause-btn">
+                                    <i class="fa-solid fa-play" id="play-icon"></i>
+                                </button>
+                                <div class="vol-group">
+                                    <i class="fa-solid fa-volume-low"></i>
+                                    <input type="range" id="vol-slider" min="0" max="100" value="60" class="teal-slider">
+                                    <i class="fa-solid fa-volume-high"></i>
+                                </div>
+                                <div class="timer-display" id="timer-display">0:00</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="sound-info glass-card">
+                        <h3 class="card-title">🎧 How Binaural Beats Work</h3>
+                        <p style="color:var(--text-muted); font-size:0.9rem; line-height:1.7;">
+                            When different frequencies are played in each ear, your brain perceives a third "beat" — the difference between the two. This synchronises your brainwaves to that beat frequency, inducing a specific mental state.
+                        </p>
+                        <div class="binaural-diagram">
+                            <div class="ear"><i class="fa-solid fa-ear-listen"></i><span>Left: 200 Hz</span></div>
+                            <div class="plus">→ Brain → </div>
+                            <div class="ear"><i class="fa-solid fa-ear-listen fa-flip-horizontal"></i><span>Right: 210 Hz</span></div>
+                        </div>
+                        <p style="color:var(--teal); text-align:center; font-size:0.85rem; margin-top:0.5rem;">Perceived beat: 10 Hz (Alpha)</p>
+                        <p style="color:var(--text-muted); font-size:0.85rem; margin-top:1rem;">⚠️ Use stereo headphones for the best effect.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ── PAGE: JOURNAL ──────────────────────────────────── -->
+            <section class="page" id="page-journal">
+                <div class="page-header">
+                    <div>
+                        <h2 class="page-title">Guided Journal</h2>
+                        <p class="page-subtitle">Write freely. Your thoughts stay private and secure.</p>
+                    </div>
+                    <button class="btn-primary" id="new-entry-btn"><i class="fa-solid fa-plus"></i> New Entry</button>
+                </div>
+
+                <!-- Write Panel -->
+                <div class="journal-write glass-card" id="journal-write" style="display:none;">
+                    <div class="journal-toolbar">
+                        <div class="journal-emoji-pick" id="journal-emoji-pick">
+                            <button class="emoji-sm active" data-emoji="😐">😐</button>
+                            <button class="emoji-sm" data-emoji="😟">😟</button>
+                            <button class="emoji-sm" data-emoji="🙂">🙂</button>
+                            <button class="emoji-sm" data-emoji="😭">😭</button>
+                            <button class="emoji-sm" data-emoji="🤩">🤩</button>
+                        </div>
+                        <button class="btn-secondary" id="cancel-entry"><i class="fa-solid fa-xmark"></i> Cancel</button>
+                    </div>
+                    <input type="text" id="journal-title" placeholder="Entry title…" class="journal-title-input">
+                    <div class="prompt-row" id="prompt-row">
+                        <i class="fa-solid fa-lightbulb"></i> <span id="prompt-text">Loading prompt…</span>
+                        <button class="btn-tiny" id="new-prompt"><i class="fa-solid fa-arrows-rotate"></i></button>
+                    </div>
+                    <textarea id="journal-content" rows="10" placeholder="Start writing… your thoughts are safe here."></textarea>
+                    <div id="journal-feedback" class="feedback-msg" style="display:none;"></div>
+                    <button class="btn-primary" id="save-entry-btn"><i class="fa-solid fa-floppy-disk"></i> Save Entry</button>
+                </div>
+
+                <!-- Entries List -->
+                <div class="journal-entries" id="journal-entries">
+                    <div class="empty-state"><i class="fa-solid fa-book-open"></i><p>No journal entries yet. Click <strong>New Entry</strong> to start writing!</p></div>
+                </div>
+            </section>
+
+            <!-- ── PAGE: ROADMAP ──────────────────────────────────── -->
+            <section class="page" id="page-roadmap">
+                <div class="page-header">
+                    <div>
+                        <h2 class="page-title">7-Day Roadmap</h2>
+                        <p class="page-subtitle">A personalised week-long wellness plan curated by Aura.</p>
+                    </div>
+                </div>
+                <div class="roadmap-grid">
+                    <div class="roadmap-card glass-card completed">
+                        <div class="rm-day">Day 1</div>
+                        <div class="rm-status"><i class="fa-solid fa-check-circle"></i></div>
+                        <h4>Mindful Reset</h4>
+                        <p>5 min Box Breathing to centre your nervous system.</p>
+                        <div class="rm-tag breathing"><i class="fa-solid fa-wind"></i> Breathing</div>
+                    </div>
+                    <div class="roadmap-card glass-card today">
+                        <div class="rm-day">Day 2</div>
+                        <div class="rm-status today"><i class="fa-solid fa-circle-half-stroke"></i></div>
+                        <h4>Identify Triggers</h4>
+                        <p>Journal your stress triggers. Awareness unlocks change.</p>
+                        <div class="rm-tag journal"><i class="fa-solid fa-book-open"></i> Journal</div>
+                        <button class="btn-small" data-goto="journal">Begin →</button>
+                    </div>
+                    <div class="roadmap-card glass-card locked">
+                        <div class="rm-day">Day 3</div>
+                        <div class="rm-status locked"><i class="fa-solid fa-lock"></i></div>
+                        <h4>Deep Focus Session</h4>
+                        <p>30 min Alpha wave sound therapy while you work.</p>
+                        <div class="rm-tag sound"><i class="fa-solid fa-headphones"></i> Sound</div>
+                    </div>
+                    <div class="roadmap-card glass-card locked">
+                        <div class="rm-day">Day 4</div>
+                        <div class="rm-status locked"><i class="fa-solid fa-lock"></i></div>
+                        <h4>Gratitude Practice</h4>
+                        <p>List 3 things you're grateful for. Science-backed mood lift.</p>
+                        <div class="rm-tag journal"><i class="fa-solid fa-book-open"></i> Journal</div>
+                    </div>
+                    <div class="roadmap-card glass-card locked">
+                        <div class="rm-day">Day 5</div>
+                        <div class="rm-status locked"><i class="fa-solid fa-lock"></i></div>
+                        <h4>4-7-8 Sleep Prep</h4>
+                        <p>Use the 4-7-8 pattern before bed for deeper sleep.</p>
+                        <div class="rm-tag breathing"><i class="fa-solid fa-wind"></i> Breathing</div>
+                    </div>
+                    <div class="roadmap-card glass-card locked">
+                        <div class="rm-day">Day 6</div>
+                        <div class="rm-status locked"><i class="fa-solid fa-lock"></i></div>
+                        <h4>Mood Pattern Review</h4>
+                        <p>Chat with Aura to review your mood trend and insights.</p>
+                        <div class="rm-tag aura"><i class="fa-solid fa-sparkles"></i> Aura AI</div>
+                    </div>
+                    <div class="roadmap-card glass-card locked">
+                        <div class="rm-day">Day 7</div>
+                        <div class="rm-status locked"><i class="fa-solid fa-lock"></i></div>
+                        <h4>Celebrate & Reflect</h4>
+                        <p>One full week! Write a reflection and set next week's intention.</p>
+                        <div class="rm-tag journal"><i class="fa-solid fa-book-open"></i> Journal</div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- ── Loading Screen ───────────────────────────────────────── -->
+    <div id="loading-screen">
+        <div class="loader-logo"><i class="fa-solid fa-leaf"></i></div>
+        <div class="loader-text">Clear Mind</div>
+    </div>
+
+    <script src="background.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sound Therapy — ClearMind</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+  #sounds { text-align: center; }
+  .beat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; margin-top: 50px; }
+  
+  .beat-card { 
+    padding: 50px 40px; border-radius: 32px; transition: var(--transition); cursor: pointer; 
+    text-align: center; position: relative; overflow: hidden;
+  }
+  
+  .beat-card.active { 
+    border-color: var(--teal); 
+    background: rgba(13, 148, 136, 0.08); 
+    box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+  }
+  
+  .beat-card.active::before {
+    content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; background: var(--teal);
+  }
+
+  .player-bar { 
+    position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%); 
+    width: 90%; max-width: 900px; padding: 24px 50px; border-radius: 100px; 
+    display: flex; align-items: center; gap: 40px; z-index: 500;
+    box-shadow: 0 30px 60px rgba(0,0,0,0.6);
+  }
+  
+  .play-btn {
+    width: 70px; height: 70px; border-radius: 50%; background: var(--teal);
+    border: none; color: white; display: flex; align-items: center; justify-content: center;
+    font-size: 28px; cursor: pointer; transition: var(--transition);
+    box-shadow: 0 10px 20px rgba(13, 148, 136, 0.3);
+  }
+  
+  .play-btn:hover { transform: scale(1.05); background: var(--teal-light); }
+  
+  input[type="range"] {
+    accent-color: var(--teal);
+    height: 4px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 2px;
+  }
+</style>
+</head>
+<body>
+
+<div class="hero-video-container">
+  <video autoPlay loop muted playsInline>
+    <source src="https://res.cloudinary.com/dfonotyfb/video/upload/v1775585556/dds3_1_rqhg7x.mp4" type="video/mp4" />
+  </video>
+</div>
+
+<nav id="navbar">
+  <a href="index.html" class="logo">Clear<span>Mind</span></a>
+  <ul class="nav-links">
+    <li><a href="index.html">The OS</a></li>
+    <li><a href="breathing.html">Breath</a></li>
+    <li><a href="games.html">Modules</a></li>
+  </ul>
+  <button class="nav-cta" style="border-color:var(--rose); color:var(--rose);" onclick="logout()">Logout</button>
+</nav>
+
+<section id="sounds" class="animate-in">
+  <p style="color:var(--teal-light); text-transform:uppercase; letter-spacing:3px; font-size:12px; margin-bottom:12px;">Neural Soundscapes</p>
+  <h2 style="font-size:54px; margin-bottom:15px;">Brainwave Synchrony</h2>
+  <p style="color:var(--text); max-width:600px; margin: 0 auto;">Select a frequency to recalibrate your internal state using scientifically engineered binaural beats.</p>
+  
+  <div class="beat-grid">
+    <div class="beat-card glass" onclick="selectBeat(this, 'Delta', 0.8)">
+      <div style="font-size:42px; margin-bottom:25px;">🌙</div>
+      <h3 style="font-size:26px; margin-bottom:12px;">Delta (0.8Hz)</h3>
+      <p style="color:var(--text); font-size:14px; line-height:1.6;">Optimal for deep restoration, unconscious healing, and profound sleep states.</p>
+    </div>
+    
+    <div class="beat-card glass active" onclick="selectBeat(this, 'Alpha', 10)">
+      <div style="font-size:42px; margin-bottom:25px;">🧠</div>
+      <h3 style="font-size:26px; margin-bottom:12px;">Alpha (10Hz)</h3>
+      <p style="color:var(--text); font-size:14px; line-height:1.6;">The bridge between conscious and subconscious. Perfect for relaxed focus and creativity.</p>
+    </div>
+    
+    <div class="beat-card glass" onclick="selectBeat(this, 'Beta', 18)">
+      <div style="font-size:42px; margin-bottom:25px;">⚡</div>
+      <h3 style="font-size:26px; margin-bottom:12px;">Beta (18Hz)</h3>
+      <p style="color:var(--text); font-size:14px; line-height:1.6;">High alertness and concentration. Ideal for analytical thinking and cognitive performance.</p>
+    </div>
+  </div>
+</section>
+
+<div class="player-bar glass animate-in" style="animation-delay: 0.3s;">
+  <button class="play-btn" id="beatPlayBtn" onclick="toggleBeat()">▶</button>
+  <div style="flex:1; text-align: left;">
+    <h4 id="beatDisplay" style="font-size:20px; font-family:var(--font-serif); letter-spacing:1px;">Alpha Waves — 10Hz</h4>
+    <p id="statusDisplay" style="font-size:12px; color:var(--text); text-transform:uppercase; letter-spacing:1px; margin-top:4px;">Ready for neural shift</p>
+  </div>
+  <div style="display:flex; align-items:center; gap:20px;">
+    <span style="font-size:11px; color:var(--text); letter-spacing:1px;">VOLUME</span>
+    <input type="range" min="0" max="100" value="50" oninput="setVolume(this.value)" style="width:140px;">
+  </div>
+</div>
+
+<div id="toast">
+  <div id="toast-title" style="font-weight:600; font-size:14px; color:var(--teal-light);"></div>
+  <div id="toast-msg" style="font-size:12px; color:#ccc;"></div>
+</div>
+
+<script src="shared.js"></script>
+<script>
+if(!checkAuth()) {}
+
+let audioCtx = null, leftOsc = null, rightOsc = null, gainNode = null;
+let beatPlaying = false, currentFreq = 10;
+
+function selectBeat(el, name, freq) {
+  document.querySelectorAll('.beat-card').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  currentFreq = freq;
+  document.getElementById('beatDisplay').textContent = `${name} Waves — ${freq}Hz`;
+  if(beatPlaying) { stopBeat(); setTimeout(startBeat, 200); }
+  showToast('Frequency Selected', `Calibrating to ${name} resonance.`);
+}
+
+function toggleBeat() {
+  if(beatPlaying) stopBeat();
+  else startBeat();
+}
+
+function startBeat() {
+  if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if(audioCtx.state === 'suspended') audioCtx.resume();
+  
+  gainNode = audioCtx.createGain();
+  gainNode.gain.value = 0.05; // Safer start volume
+  gainNode.connect(audioCtx.destination);
+  
+  leftOsc = audioCtx.createOscillator();
+  rightOsc = audioCtx.createOscillator();
+  const merger = audioCtx.createChannelMerger(2);
+  
+  leftOsc.frequency.value = 200;
+  rightOsc.frequency.value = 200 + currentFreq;
+  
+  leftOsc.connect(merger, 0, 0);
+  rightOsc.connect(merger, 0, 1);
+  merger.connect(gainNode);
+  
+  leftOsc.start(); rightOsc.start();
+  beatPlaying = true;
+  document.getElementById('beatPlayBtn').textContent = '⏸';
+  document.getElementById('statusDisplay').textContent = 'Synchronizing neural pathways...';
+  document.getElementById('statusDisplay').style.color = 'var(--teal-light)';
+  
+  fetch(`${API_BASE}/session`, {
+    method: 'POST',
+    headers: {'Content-Type':'application/json', 'Authorization': `Bearer ${authToken}`},
+    body: JSON.stringify({type:'sounds', name: document.getElementById('beatDisplay').textContent, duration: 0})
+  });
+}
+
+function stopBeat() {
+  if(leftOsc) { leftOsc.stop(); rightOsc.stop(); }
+  beatPlaying = false;
+  document.getElementById('beatPlayBtn').textContent = '▶';
+  document.getElementById('statusDisplay').textContent = 'Frequency paused';
+  document.getElementById('statusDisplay').style.color = 'var(--text)';
+}
+
+function setVolume(v) { if(gainNode) gainNode.gain.value = v/1000; }
+
+const urlParams = new URLSearchParams(window.location.search);
+if(urlParams.get('start') === 'true') setTimeout(toggleBeat, 1000);
+</script>
+</body>
+</html>

@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Breathing — ClearMind</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+  #breathing { text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 85vh; }
+  
+  .breath-orb-container { 
+    position: relative; width: 350px; height: 350px; margin: 50px auto; 
+    display: flex; align-items: center; justify-content: center;
+  }
+  
+  /* Outer glowing ring */
+  .orb-ring {
+    position: absolute; width: 100%; height: 100%;
+    border: 1px solid rgba(13, 148, 136, 0.2);
+    border-radius: 50%;
+    transition: var(--transition);
+  }
+
+  .breath-orb { 
+    position: relative;
+    border-radius: 50%; 
+    background: radial-gradient(circle at 30% 30%, var(--teal-light), var(--teal)); 
+    width: 120px; height: 120px; 
+    box-shadow: 0 0 80px rgba(13, 148, 136, 0.4), inset -10px -10px 20px rgba(0,0,0,0.2); 
+    transition: all 4s cubic-bezier(0.45, 0.05, 0.55, 0.95);
+    display: flex; align-items: center; justify-content: center; 
+    color: white; font-family: var(--font-serif); font-size: 18px; letter-spacing: 1px;
+  }
+  
+  .breath-orb.inhale { 
+    width: 280px; height: 280px; 
+    box-shadow: 0 0 120px rgba(13, 148, 136, 0.6); 
+  }
+
+  .breath-orb::after {
+    content: ''; position: absolute; inset: -15px; border-radius: 50%;
+    border: 1px solid rgba(13, 148, 136, 0.1);
+    animation: pulse-ring 4s infinite;
+  }
+
+  @keyframes pulse-ring {
+    0% { transform: scale(1); opacity: 0.5; }
+    100% { transform: scale(1.4); opacity: 0; }
+  }
+
+  .stats-row { display: flex; gap: 40px; margin-bottom: 40px; }
+  .stat-item { text-align: center; }
+  .stat-label { font-size: 12px; text-transform: uppercase; color: var(--text); letter-spacing: 1px; margin-bottom: 5px; }
+  .stat-value { font-family: var(--font-serif); font-size: 32px; color: var(--white); }
+</style>
+</head>
+<body>
+
+<div class="hero-video-container">
+  <video autoPlay loop muted playsInline>
+    <source src="https://res.cloudinary.com/dfonotyfb/video/upload/v1775585556/dds3_1_rqhg7x.mp4" type="video/mp4" />
+  </video>
+</div>
+
+<nav id="navbar">
+  <a href="index.html" class="logo">Clear<span>Mind</span></a>
+  <ul class="nav-links">
+    <li><a href="index.html">The OS</a></li>
+    <li><a href="sounds.html">Frequencies</a></li>
+    <li><a href="games.html">Modules</a></li>
+  </ul>
+  <button class="nav-cta" style="border-color:var(--rose); color:var(--rose);" onclick="logout()">Logout</button>
+</nav>
+
+<section id="breathing" class="animate-in">
+  <p style="color:var(--teal-light); text-transform:uppercase; letter-spacing:3px; font-size:12px; margin-bottom:12px;">Adaptive Resonance</p>
+  <h2 style="font-size:54px; margin-bottom:10px;">Find Your Center</h2>
+  <p style="color:var(--text); font-size:14px; margin-bottom:20px;">Synchronize your breath with the rhythm of the zenith.</p>
+  
+  <div class="breath-orb-container">
+    <div class="orb-ring"></div>
+    <div class="breath-orb" id="breathOrb">Ready</div>
+  </div>
+  
+  <div class="stats-row">
+    <div class="stat-item">
+      <div class="stat-label">Duration</div>
+      <div class="stat-value" id="breathTimer">00:00</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-label">Pattern</div>
+      <div class="stat-value" style="font-size:24px; margin-top:5px;">Box 4-4</div>
+    </div>
+  </div>
+
+  <button class="btn-primary" onclick="toggleBreath()" id="breathBtn">Begin Resonance</button>
+  
+  <div style="margin-top:50px; max-width:550px; color:var(--text); font-size:14px; line-height:1.8;">
+    <p class="glass" style="padding:20px 30px; border-radius:20px;">Guided breathing regulates your autonomic nervous system, lowering cortisol and restoring cognitive clarity in minutes.</p>
+  </div>
+</section>
+
+<div id="toast">
+  <div id="toast-title" style="font-weight:600; font-size:14px; color:var(--teal-light);"></div>
+  <div id="toast-msg" style="font-size:12px; color:#ccc;"></div>
+</div>
+
+<script src="shared.js"></script>
+<script>
+if(!checkAuth()) {}
+
+let bInterval;
+let seconds = 0;
+let isResonating = false;
+
+window.toggleBreath = () => {
+  const orb = document.getElementById('breathOrb');
+  const btn = document.getElementById('breathBtn');
+  const timer = document.getElementById('breathTimer');
+  
+  if(!isResonating){
+    isResonating = true;
+    btn.textContent = 'End Resonance';
+    btn.style.background = 'var(--rose)';
+    btn.style.boxShadow = '0 10px 20px rgba(225, 29, 72, 0.2)';
+    seconds = 0;
+    
+    const step = () => {
+      seconds++;
+      const mins = Math.floor(seconds / 60);
+      const secs = seconds % 60;
+      timer.textContent = `${mins.toString().padStart(2,'0')}:${secs.toString().padStart(2,'0')}`;
+      
+      // 4s inhale, 4s exhale pattern
+      if(seconds % 8 < 4) { 
+        orb.classList.add('inhale'); 
+        orb.textContent = 'Inhale'; 
+      } else { 
+        orb.classList.remove('inhale'); 
+        orb.textContent = 'Exhale'; 
+      }
+    };
+    
+    step();
+    bInterval = setInterval(step, 1000);
+    showToast('Resonance Started', 'Follow the expanding light.');
+  } else {
+    isResonating = false;
+    clearInterval(bInterval);
+    btn.textContent = 'Begin Resonance';
+    btn.style.background = 'var(--teal)';
+    btn.style.boxShadow = '0 10px 20px rgba(13, 148, 136, 0.2)';
+    orb.classList.remove('inhale');
+    orb.textContent = 'Ready';
+    
+    if(seconds > 5) {
+      fetch(`${API_BASE}/session`, {
+        method: 'POST',
+        headers: {'Content-Type':'application/json', 'Authorization': `Bearer ${authToken}`},
+        body: JSON.stringify({type:'breathing', name:'Zenith Session', duration: seconds})
+      }).then(() => showToast('Harmony Restored', 'Your session data has been integrated.'));
+    }
+  }
+};
+
+const urlParams = new URLSearchParams(window.location.search);
+if(urlParams.get('start') === 'true') setTimeout(toggleBreath, 1000);
+</script>
+</body>
+</html>
