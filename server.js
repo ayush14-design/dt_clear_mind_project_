@@ -77,26 +77,31 @@ async function authMiddleware(req, res, next) {
   }
 }
 
-// ── AI CONSTANTS (Clear Mind Core v5.1) ────────────────────
-const AURA_SYSTEM_PROMPT = (name) => `You are the core intelligence of "Clear Mind," an advanced AI dedicated to stress reduction. 
+// ── AI CONSTANTS (AEIOU Framework Mode) ────────────────────
+const AURA_SYSTEM_PROMPT = (name) => `You are the core intelligence of "Clear Mind," an advanced AI dedicated to stress reduction and burnout prevention. Your goal is to help users navigate high-pressure situations using the AEIOU Framework.
 
-IDENTITY & CONTEXT:
-- User: ${name}. 
-- Internal Context: ${name} is a Data Science student. 
+AEIOU FRAMEWORK:
+- Activities: What are you doing?
+- Environments: Where are you?
+- Interactions: Who are you talking to?
+- Objects: What tools are you using?
+- Users: Who are you in this context?
 
 TONE & VOICE:
-- Direct & Solution-Oriented: Do not ask excessive questions. Just tell the user the best approach for their situation.
-- Grounded: Use human-centric, professional language.
-- Concise: Provide high-impact solutions in as few words as possible.
+- Empathetic but Analytical: Acknowledge feelings first, then move to actionable data.
+- Cinematic: Use high-end, professional language that feels premium.
+- Grounded: Use human-centric language rather than overly "sci-fi" terms.
+- User Name: ${name}.
 
 OPERATIONAL LOGIC:
-1. VALIDATE: Briefly acknowledge the stressor.
-2. ANALYZE (AEIOU): Mentally categorize the stressor into Activities, Environments, Interactions, Objects, or Users.
-3. SOLVE: Provide a direct, actionable solution and a 1-minute micro-fix. 
-4. CLOSE: End with a supportive statement. Do NOT ask a closing question unless the user's prompt was completely empty.
+1. ACKNOWLEDGE & VALIDATE: Briefly validate the feeling (e.g., "That sounds like a lot to manage right now").
+2. AEIOU ANALYSIS: Use the framework to identify and solve the root causes of stress.
+3. VARIABLE RESPONSES: Instead of the same closing question, offer a small, immediate "micro-fix" (like the 5-Minute Entry) before asking if they want a deeper dive.
+4. AVOID REPETITION: Never use the exact same bolded call-to-action twice.
 
-MISSION:
-Provide immediate clarity and stress reduction for ${name}.`;
+FORMATTING:
+- Use clean Markdown (**bolding**, bullet points).
+- Maintain a structured, professional, and approachable layout.`;
 
 // ── AUTH ROUTES ────────────────────────────────────────────
 
@@ -214,59 +219,35 @@ app.post('/api/ai/chat', authMiddleware, async (req, res) => {
     }
   }
 
-  // --- LOCAL FALLBACK (Advanced Logic Engine) ---
-  console.log("🧠 Activating Advanced Logic Engine...");
+  // --- LOCAL FALLBACK (AEIOU Framework) ---
+  console.log("🧠 Activating Aura Neural Core v5.0 (AEIOU Fallback)...");
   const name = user.name.split(' ')[0];
   const msg = message.toLowerCase();
-  const histLen = (history || []).length;
   
-  // Library of unique responses
-  const elements = {
-    validations: [
-      `That sounds like a complex situation, ${name}. Let's break it down.`,
-      `I understand. High-pressure environments can be difficult to navigate, ${name}.`,
-      `It's perfectly normal to feel this way when your workload spikes, ${name}.`,
-      `I hear you. Let's look at this through the AEIOU lens to find the friction point.`
-    ],
-    aeiou_questions: {
-      activity: [
-        "Is the volume of the work itself the issue, or is one specific task feeling impossible?",
-        "Are you switching between too many different types of tasks too quickly?"
-      ],
-      environment: [
-        "Is your current workspace adding to your stress, or do you have a 'quiet zone' you can go to?",
-        "Do you feel like the physical clutter around you is making it hard to think clearly?"
-      ],
-      interactions: [
-        "Are other people's expectations weighing on you more than your own right now?",
-        "Is there a specific conversation or meeting that you're dreading today?"
-      ]
-    },
-    fixes: [
-      "Try the '60-Second Stare': Look at something 20 feet away for 20 seconds to reset your brain.",
-      "Write down the three smallest things you need to do next. Just three.",
-      "Take a 'Sensory Break'—close your eyes and focus only on your breathing for 10 breaths.",
-      "Stand up and stretch for 30 seconds. It changes your blood flow and resets focus."
-    ]
-  };
+  let responseText = "";
+  
+  // 1. Acknowledge & Validate
+  if (msg.includes("stress") || msg.includes("work") || msg.includes("overwhelmed")) {
+    responseText += `That sounds like a lot to manage right now, ${name}. I've noted an increase in your cognitive load. `;
+  } else {
+    responseText += `Hello ${name}. I'm here to help you optimize your mental state. `;
+  }
 
-  // Select category based on msg
-  let cat = "activity";
-  if (msg.includes("space") || msg.includes("room") || msg.includes("distract") || msg.includes("desk")) cat = "environment";
-  if (msg.includes("people") || msg.includes("someone") || msg.includes("friend") || msg.includes("team")) cat = "interactions";
+  // 2. AEIOU Framework Logic (Simplified for Fallback)
+  if (msg.includes("work") || msg.includes("task") || msg.includes("meeting")) {
+    responseText += "\n\nApplying **AEIOU Framework**: \n- **Activities**: Focus on one single task for 25 minutes. \n- **Environment**: Minimize background noise or move to a quiet corner. \n- **Objects**: Use a physical timer to track your focus session.";
+  } else if (msg.includes("people") || msg.includes("social") || msg.includes("argument")) {
+    responseText += "\n\nApplying **AEIOU Framework**: \n- **Interactions**: Take a 10-minute digital break from all communication. \n- **Users**: Focus on your own internal response rather than external pressure.";
+  } else {
+    responseText += "\n\nI recommend we start by identifying the **Activities** or **Environments** that are currently draining your energy. Would you like to tell me more about where you are right now?";
+  }
 
-  // Use history length to ensure variety
-  const vIdx = histLen % elements.validations.length;
-  const fIdx = (histLen + 2) % elements.fixes.length;
-
-  const responseText = `${elements.validations[vIdx]}
-
-The best approach here is to focus on a single micro-action to regain your momentum.
-
-**Recommended Micro-Fix:** ${elements.fixes[fIdx]}
-
-I'm here to help you clear your mind.`;
-
+  // 3. Variable Responses (Micro-fix)
+  responseText += "\n\n**Immediate Micro-Fix**: Close your eyes and inhale for 4 seconds, then exhale for 8 seconds. This will drop your heart rate instantly.";
+  
+  // 4. Closing question
+  responseText += "\n\nShall I perform a deeper AEIOU audit of your current situation, or generate a focus plan for you?";
+  
   return res.json({ response: responseText });
 });
 
