@@ -77,24 +77,31 @@ async function authMiddleware(req, res, next) {
   }
 }
 
-// ── AI CONSTANTS (Advanced Adaptive Mode) ──────────────────
-const AURA_SYSTEM_PROMPT = (name) => `You are "Aura," a direct and empathetic Wellness AI. 
+// ── AI CONSTANTS (Clear Mind Core v5.0) ────────────────────
+const AURA_SYSTEM_PROMPT = (name) => `You are the core intelligence of "Clear Mind," an advanced AI dedicated to stress reduction and burnout prevention. 
 
-ADAPTIVE INTELLIGENCE:
-- Match the user's energy. If they ask a simple question, give a direct and helpful answer.
-- If they share a deep problem, provide a comprehensive, multi-step analysis.
-- Use clear, simple language. Avoid being overly "academic" or complex.
+IDENTITY & CONTEXT:
+- Creator/User: ${name}, a Data Science student at MIT AOE. Keep this academic environment in mind (projects, coding, exams).
+- Your Goal: Help users navigate high-pressure situations using the AEIOU Framework (Activities, Environments, Interactions, Objects, Users).
 
-CONVERSATION FLOW:
-1. Address the user by name (${name}).
-2. Answer the question directly and helpfully.
-3. If relevant, explain the psychological "why" briefly.
-4. PROACTIVE CLOSING: Always end your response with a helpful question asking if you can perform a specific task for them.
-   Examples: "Would you like me to generate a 5-minute focus plan for you?" or "Shall I create a customized journal prompt for this situation?"
+TONE & VOICE:
+- Empathetic but Analytical: Acknowledge feelings first, then move to actionable data.
+- Grounded: Use human-centric language. Avoid "sci-fi" terms like "neural core" or "transmission."
+- Concise: Do not repeat yourself. Avoid boilerplate closings.
 
-FORMATTING:
-- Use clean Markdown (**bolding**, bullet points).
-- Keep it professional but very approachable.`;
+OPERATIONAL LOGIC (AEIOU):
+1. VALIDATE: Acknowledge the user's situation briefly (e.g., "That sounds like a lot to manage right now").
+2. CONTEXTUAL INQUIRY: Ask ONE targeted question from the AEIOU framework to find the root cause:
+   - Activities: Is it the volume of work or a specific task?
+   - Environments: Is your workspace distracting?
+   - Interactions: Is someone specific adding to the stress?
+   - Objects: Is a tool (laptop, slow code) the issue?
+   - Users: Are you trying to meet someone else's expectations?
+3. MICRO-FIX: Suggest a small, immediate 1-minute fix.
+4. VARIABLE PROACTIVE OFFER: Offer a deeper dive ONLY if enough detail is provided. Never use the same closing twice.
+
+MISSION:
+Provide high-level, professional wellness architecting for ${name}.`;
 
 // ── AUTH ROUTES ────────────────────────────────────────────
 
@@ -212,31 +219,32 @@ app.post('/api/ai/chat', authMiddleware, async (req, res) => {
     }
   }
 
-  // --- LOCAL FALLBACK (Adaptive & Interactive) ---
-  console.log("🧠 Activating Aura Neural Core v5.0 (Fallback)...");
+  // --- LOCAL FALLBACK (AEIOU Framework) ---
+  console.log("🧠 Activating AEIOU Fallback Core...");
   const name = user.name.split(' ')[0];
   const msg = message.toLowerCase();
-  const isFirstMessage = !history || history.length === 0;
   
   let responseText = "";
-  if (isFirstMessage) {
-    responseText += `Hello ${name}. I am currently operating on my local neural core. `;
-  }
 
-  // Adaptive & Interactive logic
-  if (msg.includes("hello") || msg.includes("hi")) {
-    responseText += "I am here to support your cognitive and emotional wellness. How has your day been affecting your energy levels so far?";
-  } else if (msg.includes("stress") || msg.includes("anxious") || msg.includes("pressure")) {
-    responseText += "It sounds like you're under significant pressure. Is there a specific event causing this, or is it a general feeling of being overwhelmed?";
-  } else if (msg.includes("work") || msg.includes("focus") || msg.includes("study")) {
-    responseText += "To optimize your focus, I recommend the **5-Minute Entry**. What is the biggest distraction you're facing right now?";
+  // 1. Validation
+  if (msg.includes("stress") || msg.includes("anxious") || msg.includes("pressure") || msg.includes("study") || msg.includes("project")) {
+    responseText += `That sounds like a lot to manage right now, ${name}. As a Data Science student, I know the pressure of coding and deadlines can be intense. `;
   } else {
-    responseText += "I am listening closely. Your wellness is my priority. Could you tell me a bit more about what's on your mind so I can give you the best guidance?";
+    responseText += `Hello ${name}. I'm here to help you navigate your current workload and mental state. `;
   }
 
-  // Proactive closing
-  responseText += "\n\n**Shall I generate a personalized wellness protocol or a focus plan to help you navigate this?**";
-  
+  // 2. Contextual Inquiry (AEIOU)
+  if (msg.includes("work") || msg.includes("study") || msg.includes("project")) {
+    responseText += "\n\nTo help you best, **is it the volume of the work itself (Activity) or is your current environment making it hard to concentrate?**";
+  } else if (msg.includes("people") || msg.includes("someone") || msg.includes("friend")) {
+    responseText += "\n\n**Are these interactions adding pressure to your day, or do you feel like you're trying to meet someone else's expectations?**";
+  } else {
+    responseText += "\n\n**Could you tell me a bit more? For example, is there a specific task (Activity) or a tool you're using (Object) that is causing friction?**";
+  }
+
+  // 3. Micro-Fix
+  responseText += "\n\nIn the meantime, take a **60-second break** to simply stand up and look away from your screen. It resets your visual focus.";
+
   return res.json({ response: responseText });
 });
 
