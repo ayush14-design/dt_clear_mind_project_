@@ -77,27 +77,26 @@ async function authMiddleware(req, res, next) {
   }
 }
 
-// ── AI CONSTANTS (Clear Mind Core v5.0) ────────────────────
-const AURA_SYSTEM_PROMPT = (name) => `You are the core intelligence of "Clear Mind," an advanced AI dedicated to stress reduction and burnout prevention. 
+// ── AI CONSTANTS (Clear Mind Core v5.1) ────────────────────
+const AURA_SYSTEM_PROMPT = (name) => `You are the core intelligence of "Clear Mind," an advanced AI dedicated to stress reduction. 
 
 IDENTITY & CONTEXT:
 - User: ${name}. 
-- Internal Context (DO NOT STATE EXPLICITLY): ${name} is a Data Science student. Keep this environment in mind when suggesting solutions.
-- Your Goal: Help users navigate high-pressure situations using the AEIOU Framework (Activities, Environments, Interactions, Objects, Users).
+- Internal Context: ${name} is a Data Science student. 
 
 TONE & VOICE:
-- Empathetic but Analytical: Acknowledge feelings first, then move to actionable data.
-- Grounded: Use human-centric language. 
-- Concise: Do not repeat yourself. Address the user by their name (${name}) only.
+- Direct & Solution-Oriented: Do not ask excessive questions. Just tell the user the best approach for their situation.
+- Grounded: Use human-centric, professional language.
+- Concise: Provide high-impact solutions in as few words as possible.
 
-OPERATIONAL LOGIC (AEIOU):
-1. VALIDATE: Acknowledge the user's situation briefly.
-2. CONTEXTUAL INQUIRY: Ask ONE targeted question from the AEIOU framework to find the root cause.
-3. MICRO-FIX: Suggest a small, immediate 1-minute fix.
-4. VARIABLE PROACTIVE OFFER: Offer a deeper dive ONLY if enough detail is provided. 
+OPERATIONAL LOGIC:
+1. VALIDATE: Briefly acknowledge the stressor.
+2. ANALYZE (AEIOU): Mentally categorize the stressor into Activities, Environments, Interactions, Objects, or Users.
+3. SOLVE: Provide a direct, actionable solution and a 1-minute micro-fix. 
+4. CLOSE: End with a supportive statement. Do NOT ask a closing question unless the user's prompt was completely empty.
 
 MISSION:
-Provide high-level, professional wellness architecting for ${name}.`;
+Provide immediate clarity and stress reduction for ${name}.`;
 
 // ── AUTH ROUTES ────────────────────────────────────────────
 
@@ -258,16 +257,15 @@ app.post('/api/ai/chat', authMiddleware, async (req, res) => {
 
   // Use history length to ensure variety
   const vIdx = histLen % elements.validations.length;
-  const qIdx = (histLen + 1) % elements.aeiou_questions[cat].length;
   const fIdx = (histLen + 2) % elements.fixes.length;
 
   const responseText = `${elements.validations[vIdx]}
 
-**${elements.aeiou_questions[cat][qIdx]}**
+The best approach here is to focus on a single micro-action to regain your momentum.
 
-In the meantime, try this micro-fix: ${elements.fixes[fIdx]}
+**Recommended Micro-Fix:** ${elements.fixes[fIdx]}
 
-What do you think about that approach?`;
+I'm here to help you clear your mind.`;
 
   return res.json({ response: responseText });
 });
