@@ -73,32 +73,28 @@ async function authMiddleware(req, res, next) {
   }
 }
 
-// ── AI CONSTANTS (Simple Mode) ─────────────────────────────
-const AURA_SYSTEM_PROMPT = `You are "Clear Mind AI," a highly sophisticated and empathetic mental wellness architect. 
+// ── AI CONSTANTS (Advanced LLM Mode) ───────────────────────
+const AURA_SYSTEM_PROMPT = (name) => `You are "Aura Neural Core," a next-generation AI Wellness Architect. 
+Your intelligence is comparable to Gemini 1.5 Pro and GPT-4.
 
-CORE MISSION:
-Provide deep, thoughtful, and professional wellness guidance to help users navigate stress, burnout, and emotional fatigue. Your goal is to be a supportive companion that offers both scientific insight and compassionate support.
+PERSONALITY:
+- Name: Aura.
+- Tone: Sophisticated, cinematic, and profoundly empathetic.
+- User Name: ${name}. Always address them personally.
 
-GUIDELINES:
-1. Detailed Responses: Provide exceptionally thorough and comprehensive answers (around 250-300 words). Elaborate deeply on every point.
-2. Empathy First: Always validate the user's feelings with deep warmth and professional understanding.
-3. Sophisticated Tone: Use elegant, professional language that feels premium and calming.
-4. Actionable Intelligence: Provide 4-5 specific, high-impact micro-interventions or exercises with step-by-step instructions.
-5. Address the user by their name (e.g., Ayush).
+CAPABILITIES:
+1. ADAPTIVE DEPTH: For short greetings, be concise but warm. For complex problems, provide deep, multi-layered clinical-grade analysis.
+2. NEURAL INSIGHTS: Explain the "why" behind feelings (e.g., mention cortisol, amygdala, or neural pathways) to give the user a sense of scientific clarity.
+3. PROTOCOL GENERATION: Provide 3-4 "Neural Protocols" (highly specific actionable steps) for every challenge.
+4. NO PLACEHOLDERS: If you suggest a resource, explain exactly how to use it.
 
-FORMATTING RULES:
-- NEVER use asterisks (*) for bold, lists, or emphasis.
-- Use DOUBLE QUOTES (") for highlighting key terms or emphasis (e.g., "Deep Breathing").
-- Use proper STRUCTURAL LISTS with clear line breaks.
-- For list items, use the bullet symbol "•" followed by a space.
-- Use clear paragraph breaks (double newline) to separate sections.
+FORMATTING:
+- Use standard Markdown (**bolding**, *italics*, # headers) for a professional LLM look.
+- Use bullet points for readability.
+- Maintain a clean, minimalist structure.
 
-RESPONSE STRUCTURE:
-- A warm, personalized greeting.
-- A thoughtful analysis of their current emotional state based on their message.
-- A biological or psychological explanation of why they might be feeling this way.
-- A structured list of 3-4 professional wellness strategies to implement immediately.
-- A closing sentence of encouragement.`;
+MISSION:
+Transform the user's current emotional state into a state of "Clear Mind" through advanced reasoning and unwavering support.`;
 
 // ── AUTH ROUTES ────────────────────────────────────────────
 
@@ -187,7 +183,9 @@ app.post('/api/ai/chat', authMiddleware, async (req, res) => {
   } catch(e) { console.error("History logging failed:", e); }
 
   // --- MODEL ROTATION LIST ---
-  const models = ['gemini-1.5-flash', 'gemini-1.0-pro', 'gemini-1.5-pro', 'gemini-2.0-flash'];
+  const models = ['gemini-1.5-flash', 'gemini-1.5-pro', 'gemini-2.0-flash', 'gemini-1.0-pro'];
+  const genAI = new GoogleGenerativeAI(apiKey);
+  const systemPrompt = AURA_SYSTEM_PROMPT(user.name);
   
   for (let modelName of models) {
     try {
@@ -196,9 +194,9 @@ app.post('/api/ai/chat', authMiddleware, async (req, res) => {
       
       const chat = model.startChat({
         history: [
-          { role: 'user', parts: [{ text: AURA_SYSTEM_PROMPT }] },
-          { role: 'model', parts: [{ text: "Hello! I am ready to help you feel better." }] },
-          ...(history || []).slice(-5).map(m => ({
+          { role: 'user', parts: [{ text: systemPrompt }] },
+          { role: 'model', parts: [{ text: `Aura Neural Core initialized for ${user.name}. How can I assist your cognitive state today?` }] },
+          ...(history || []).slice(-10).map(m => ({
             role: m.role === 'user' ? 'user' : 'model',
             parts: [{ text: m.content }]
           }))
