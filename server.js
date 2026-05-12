@@ -243,13 +243,17 @@ app.post('/api/ai/chat', authMiddleware, async (req, res) => {
   }
 
   // Proactive closing (if not already handled)
-  if (!responseText.includes("Shall I") && !responseText.includes("Would you") && !responseText.includes("Here is your")) {
+  if (!responseText.includes("Here is your") && !responseText.includes("I recommend")) {
     const ctas = [
       "Would you like me to generate a 5-minute focus plan for you?",
       "Shall I create a customized journal prompt for this situation?",
       "Would you like me to walk you through a quick grounding exercise?"
     ];
-    responseText += `\n\n**${ctas[Math.floor(Math.random() * ctas.length)]}**`;
+    // Filter out CTAs that might have been recently mentioned
+    const filteredCtas = ctas.filter(cta => !lastAiMessage.toLowerCase().includes(cta.split(' ')[5]));
+    const finalCta = filteredCtas.length > 0 ? filteredCtas[Math.floor(Math.random() * filteredCtas.length)] : ctas[0];
+    
+    responseText += `\n\n**${finalCta}**`;
   }
   
   return res.json({ response: responseText });
