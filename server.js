@@ -180,7 +180,7 @@ app.post('/api/ai/chat', authMiddleware, async (req, res) => {
   } catch(e) { console.error("History logging failed:", e); }
 
   // --- CLOUD AI ATTEMPT ---
-  const models = ['gemini-1.5-flash', 'gemini-1.5-pro', 'gemini-2.0-flash', 'gemini-1.0-pro'];
+  const models = ['gemini-1.5-flash-latest', 'gemini-pro', 'gemini-1.5-pro', 'gemini-1.5-flash', 'gemini-2.0-flash'];
   const systemPrompt = AURA_SYSTEM_PROMPT(user.name);
   
   for (let modelName of models) {
@@ -209,39 +209,48 @@ app.post('/api/ai/chat', authMiddleware, async (req, res) => {
     }
   }
 
-  // --- LOCAL FALLBACK (Human-Centric & Interactive) ---
+  // --- LOCAL FALLBACK (Context-Aware & Direct) ---
   const name = user.name.split(' ')[0];
   const msg = message.toLowerCase();
+  const lastAiMessage = history && history.length > 0 ? history[history.length - 1].content.toLowerCase() : "";
   
   let responseText = "";
   if (!history || history.length === 0) {
     responseText += `Hello ${name}. I'm here to support you. `;
   }
 
-  // Acknowledge & Validate (Human-centric)
-  if (msg.includes("stress") || msg.includes("work") || msg.includes("overwhelmed") || msg.includes("pressure")) {
-    responseText += "That sounds like a lot to manage right now. I can certainly help you break this down into smaller, more manageable steps. ";
-  }
-
-  // Adaptive & Direct logic (No follow-up questions)
-  if (msg.includes("hello") || msg.includes("hi")) {
+  // Context-Aware Logic (Handling "Yes" to CTAs)
+  if (msg === "yes" || msg.includes("yes do it") || msg.includes("please do")) {
+    if (lastAiMessage.includes("focus plan")) {
+      responseText += "Excellent. Here is your **5-Minute Focus Protocol**: \n1. Clear your desk of everything except one item. \n2. Set a timer for 5 minutes. \n3. Do not look away from your task until it rings.";
+    } else if (lastAiMessage.includes("journal prompt")) {
+      responseText += "Here is a prompt for you: **'What is one thing I am tolerating right now that I could change?'** Write for 3 minutes without stopping.";
+    } else if (lastAiMessage.includes("grounding exercise")) {
+      responseText += "Let's do the **5-4-3-2-1 Technique**: Name 5 things you see, 4 things you can touch, 3 things you hear, 2 things you can smell, and 1 thing you can taste.";
+    } else {
+      responseText += "I'm ready. Tell me exactly what you'd like me to solve or generate for you.";
+    }
+  } 
+  // Standard Adaptive logic
+  else if (msg.includes("hello") || msg.includes("hi")) {
     responseText += "I'm ready to help you optimize your wellness. What can I solve for you today?";
-  } else if (msg.includes("stress") || msg.includes("anxious") || msg.includes("overwhelmed")) {
-    responseText += "To lower your immediate stress, I recommend a **90-Second Reset**: Close your eyes and focus entirely on your breathing. An emotional surge only lasts 90 seconds if you don't feed it with more thoughts.";
+  } else if (msg.includes("stress") || msg.includes("anxious") || msg.includes("overwhelmed") || msg.includes("pressure")) {
+    responseText += "That sounds like a lot to manage. To lower your immediate stress, I recommend a **90-Second Reset**: Close your eyes and focus entirely on your breathing. An emotional surge only lasts 90 seconds if you don't feed it with more thoughts.";
   } else if (msg.includes("work") || msg.includes("focus") || msg.includes("study")) {
     responseText += "For immediate focus, try the **2-Minute Rule**: If a task takes less than 2 minutes, do it now to clear your cognitive load.";
   } else {
-    responseText += "I've analyzed your input and suggest a quick **Grounding Break**: Step away from your screen for 60 seconds to reset your visual focus.";
+    responseText += "I've analyzed your input. To help you best, should I generate a **focus plan**, a **journal prompt**, or a **grounding exercise** for you?";
   }
 
-  // Proactive closing (Avoiding repetition via randomness or generic helpfulness)
-  const ctas = [
-    "Would you like me to generate a 5-minute focus plan for you?",
-    "Shall I create a customized journal prompt for this situation?",
-    "Would you like me to walk you through a quick grounding exercise?",
-    "Should I help you prioritize your tasks for the next hour?"
-  ];
-  responseText += `\n\n**${ctas[Math.floor(Math.random() * ctas.length)]}**`;
+  // Proactive closing (if not already handled)
+  if (!responseText.includes("Shall I") && !responseText.includes("Would you") && !responseText.includes("Here is your")) {
+    const ctas = [
+      "Would you like me to generate a 5-minute focus plan for you?",
+      "Shall I create a customized journal prompt for this situation?",
+      "Would you like me to walk you through a quick grounding exercise?"
+    ];
+    responseText += `\n\n**${ctas[Math.floor(Math.random() * ctas.length)]}**`;
+  }
   
   return res.json({ response: responseText });
 });
