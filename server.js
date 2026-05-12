@@ -24,7 +24,8 @@ const JWT_SECRET = process.env.JWT_SECRET || 'clearmind-fallback-secret';
 // ── Middleware ──────────────────────────────────────────────
 app.use(cors());
 app.use(express.json());
-// Static files are handled by Vercel directly for better performance
+// Serve static files (needed for localhost)
+app.use(express.static(__dirname));
 
 // Global Request Logger
 app.use((req, res, next) => {
