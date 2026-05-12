@@ -169,11 +169,11 @@ app.get('/api/user/profile', authMiddleware, async (req, res) => {
 });
 
 app.post('/api/ai/chat', authMiddleware, async (req, res) => {
-  console.log("🧠 Aura Neural Core: Analyzing request via Supabase...");
   const { message, history } = req.body;
   const apiKey = process.env.GEMINI_API_KEY;
   const user = req.user;
 
+  // Log query
   try {
     await supabase.from('queries').insert([{
       userId: user.id,
@@ -182,7 +182,7 @@ app.post('/api/ai/chat', authMiddleware, async (req, res) => {
     }]);
   } catch(e) { console.error("History logging failed:", e); }
 
-  // --- MODEL ROTATION LIST ---
+  // --- CLOUD AI ATTEMPT ---
   const models = ['gemini-1.5-flash', 'gemini-1.5-pro', 'gemini-2.0-flash', 'gemini-1.0-pro'];
   const systemPrompt = AURA_SYSTEM_PROMPT(user.name);
   
@@ -204,145 +204,36 @@ app.post('/api/ai/chat', authMiddleware, async (req, res) => {
 
       const result = await chat.sendMessage(message);
       const responseText = result.response.text();
-      
       console.log(`✅ Success with ${modelName}`);
       return res.json({ response: responseText });
-
     } catch (err) {
       console.log(`⚠️ ${modelName} failed: ${err.message.substring(0, 50)}...`);
       continue;
     }
   }
 
-  // --- AURA NEURAL CORE v5.0 (Advanced Local Reasoning) ---
-  console.log("🧠 Activating Aura Neural Core v5.0...");
+  // --- LOCAL FALLBACK (Adaptive) ---
+  console.log("🧠 Activating Aura Neural Core v5.0 (Fallback)...");
   const name = user.name.split(' ')[0];
   const msg = message.toLowerCase();
   
-  // Advanced Category Matrix
-  const protocols = {
-    STRESS: {
-      keywords: ['stress', 'anxiety', 'pressure', 'worry', 'racing', 'thought', 'calm', 'panicking', 'scared'],
-      insights: [
-        "Your biometric signature indicates a surge in cortisol and a localized activation of the amygdala.",
-        "Neural patterns suggest your nervous system is trapped in a sympathetic nervous system loop.",
-        "I've detected a state of 'Hyper-vigilance' which is common when the cognitive load exceeds your current neural capacity."
-      ],
-      interventions: [
-        { title: "Vagus Nerve Activation", desc: "Splash ice-cold water on your eyes and temples for 10 seconds to trigger the 'Mammalian Dive Reflex'—this will drop your heart rate instantly." },
-        { title: "Tactile Anchoring", desc: "Hold a cold object or an ice cube in your hand. Focus entirely on the thermal shift to override racing cognitive loops." },
-        { title: "Box Breathing 2.0", desc: "Inhale for 4s, Hold for 4s, Exhale for 6s, Hold for 2s. The extended exhale signals safety to the brainstem." },
-        { title: "Neural Grounding", desc: "Identify 3 blue objects, 2 red objects, and 1 yellow object. This forces the prefrontal cortex to take over from the emotional centers." }
-      ]
-    },
-    FOCUS: {
-      keywords: ['focus', 'concentrate', 'work', 'study', 'procrastination', 'distracted', 'lazy', 'productivity'],
-      insights: [
-        "Your prefrontal cortex is experiencing 'Attentional Blink' due to dopamine depletion from task-switching.",
-        "Neural synchronization is currently fragmented. We need to align your brainwaves to an Alpha-Beta bridge.",
-        "Procrastination is often an emotional regulation issue, not a time management one."
-      ],
-      interventions: [
-        { title: "The 5-Minute Entry", desc: "Commit to your task for exactly 300 seconds. No more, no less. This bypasses the 'Amygdala Hijack' associated with difficult work." },
-        { title: "Dopamine Reset", desc: "Close your eyes for 2 minutes in total silence. Do not move. This lowers the neural threshold for the next task." },
-        { title: "Environment Purge", desc: "Clear everything from your physical field of vision except the tools needed for your primary task." },
-        { title: "Cognitive Priming", desc: "Say out loud: 'I am beginning [TASK] now.' Verbalization reinforces neural pathways of commitment." }
-      ]
-    },
-    SLEEP: {
-      keywords: ['sleep', 'tired', 'insomnia', 'night', 'wake', 'exhausted', 'restless'],
-      insights: [
-        "Your circadian baseline is being suppressed by lingering blue-light exposure or high-frequency cognitive activity.",
-        "Neural activity suggests your brain is struggling to transition from Beta (active) to Delta (restorative) waves.",
-        "The 'Sleep-Wake Flip-Flop' mechanism in your hypothalamus requires a chemical signal of safety to engage."
-      ],
-      interventions: [
-        { title: "Military Sleep Method", desc: "Relax every muscle in your face, drop your shoulders, and clear your mind by visualizing a dark, quiet lake for 10 seconds." },
-        { title: "Cognitive Shuffling", desc: "Think of random, unrelated words (e.g., Apple, Cloud, Fence). This prevents the brain from entering logical 'problem-solving' loops." },
-        { title: "The 4-7-8 Protocol", desc: "Inhale 4s, Hold 7s, Exhale 8s. This is the 'natural tranquilizer' for the nervous system." },
-        { title: "Gratitude Neural Lock", desc: "List 3 specific successes from today to flood your system with serotonin, a precursor to melatonin." }
-      ]
-    },
-    MOOD: {
-      keywords: ['sad', 'unhappy', 'depressed', 'lonely', 'low', 'empty', 'crying', 'hurting'],
-      insights: [
-        "Your current neurochemical state suggests a temporary down-regulation of serotonin and dopamine.",
-        "Emotional processing is a high-energy neural task. Your current fatigue is a signal to prioritize self-preservation.",
-        "Loneliness or sadness often activates the same neural regions as physical pain. Your experience is biologically real."
-      ],
-      interventions: [
-        { title: "The Smallest Victory", desc: "Perform one physical action that takes less than 10 seconds (e.g., stretching or drinking water) to signal agency to your brain." },
-        { title: "Light Exposure", desc: "Expose your retinas to bright, natural light for 5 minutes. This triggers the 'Cortisol Awakening Response' and boosts mood." },
-        { title: "Kinetic Journaling", desc: "Write down your heaviest thought, then physically crumple and discard the paper. This symbolic action has measurable neural benefits." },
-        { title: "Vocal Release", desc: "Hum a low-frequency tone for 30 seconds. The vibration stimulates the vagus nerve and provides internal comfort." }
-      ]
-    },
-    ANGRY: {
-      keywords: ['angry', 'frustrated', 'mad', 'hate', 'annoyed', 'furious'],
-      insights: [
-        "Adrenaline and noradrenaline are currently flooding your system, preparing you for a conflict that isn't physical.",
-        "Your 'Executive Function' is being temporarily bypassed by the limbic system's fight-response.",
-        "Frustration is energy without an outlet. We need to ground this charge before it leads to cognitive burnout."
-      ],
-      interventions: [
-        { title: "Temperature Shock", desc: "Hold a piece of ice or wash your hands in very cold water. The sensory intensity forces the brain to reset its emotional threshold." },
-        { title: "The 90-Second Rule", desc: "An emotional chemical surge only lasts 90 seconds. Commit to doing nothing for exactly 1.5 minutes to let it pass." },
-        { title: "Physical Venting", desc: "Tense every single muscle in your body as hard as you can for 5 seconds, then release. Repeat twice." },
-        { title: "Objective Reframing", desc: "Describe the situation in the third person: '[Name] is feeling frustrated because...'. This creates psychological distance." }
-      ]
-    }
-  };
+  let responseText = `Hello ${name}. I am currently operating on my local neural core. `;
 
-  // Find matching protocol
-  let protocol = null;
-  for (const key in protocols) {
-    if (protocols[key].keywords.some(k => msg.includes(k))) {
-      protocol = protocols[key];
-      break;
-    }
+  // Simple adaptive logic
+  if (msg.includes("hello") || msg.includes("hi")) {
+    responseText += "I am here to support your cognitive and emotional wellness. How are you feeling in this moment?";
+  } else if (msg.includes("stress") || msg.includes("anxious") || msg.includes("pressure")) {
+    responseText += "It sounds like you're under significant pressure. **Box Breathing** is the fastest way to reset your nervous system: Inhale for 4 seconds, hold for 4, exhale for 4, and hold for 4. It signals immediate safety to your brain.";
+  } else if (msg.includes("work") || msg.includes("focus") || msg.includes("study")) {
+    responseText += "To optimize your focus, I recommend the **5-Minute Entry**: Commit to the task for just 300 seconds. This bypasses the brain's initial resistance to difficult work.";
+  } else {
+    responseText += "I am listening closely. Your wellness is my priority. Even without a full cloud sync, I can guide you through grounding exercises to clear your mind.";
   }
 
-  // Fallback to General if no protocol found
-  if (!protocol) {
-    protocol = {
-      insights: ["Your message suggests a state of complex cognitive processing.", "Neural links are currently focused on synthesizing your input for a personalized path."],
-      interventions: [
-        { title: "Mindful Observation", desc: "Identify 3 things you can hear right now. This anchors you in the present moment." },
-        { title: "Neural Reset", desc: "Close your eyes and take 3 deep, audible breaths. Focus on the sound of the air." },
-        { title: "Digital Pause", desc: "Step away from all screens for 2 minutes to allow your neural pathways to cool down." }
-      ]
-    };
-  }
-
-  // Randomize selections
-  const randGreeting = [
-    `Greetings, ${name}. Aura Neural Core is now analyzing your state.`,
-    `Hello ${name}. I have detected a specific neural pattern in your request.`,
-    `Welcome back, ${name}. Let's optimize your current state together.`,
-    `I am here, ${name}. Let's begin your neuro-wellness protocol.`
-  ][Math.floor(Math.random() * 4)];
-
-  const selectedInsight = protocol.insights[Math.floor(Math.random() * protocol.insights.length)];
-  const selectedSteps = protocol.interventions.sort(() => 0.5 - Math.random()).slice(0, 3);
-
-  const detailedResponse = `
-${randGreeting}
-
-"CLINICAL ANALYSIS"
-${selectedInsight}
-
-"NEURO-WELLNESS INSIGHT"
-When we encounter these states, the brain often defaults to "Survival Mode." By implementing strategic micro-interventions, we can shift your physiology back to "Growth Mode" in less than 3 minutes.
-
-"RECOMMENDED PROTOCOL"
-${selectedSteps.map(s => `• "${s.title}": ${s.desc}`).join('\n')}
-
-"AURA'S CLOSING NOTE"
-You are a resilient biological system, ${name}. These feelings are simply signals—data points on your journey to peak clarity. I am always monitoring your progress.
-  `;
-
-  await new Promise(resolve => setTimeout(resolve, 1000));
-  return res.json({ response: detailedResponse });
+  // Proactive closing
+  responseText += "\n\n**Would you like me to generate a personalized wellness protocol for you based on this?**";
+  
+  return res.json({ response: responseText });
 });
 
 app.post('/api/ai/roadmap', authMiddleware, async (req, res) => {
