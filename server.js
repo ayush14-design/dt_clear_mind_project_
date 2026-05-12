@@ -215,31 +215,75 @@ app.post('/api/ai/chat', authMiddleware, async (req, res) => {
     }
   }
 
-  // --- LOCAL FALLBACK (AEIOU Framework) ---
-  console.log("🧠 Activating AEIOU Fallback Core...");
+  // --- LOCAL FALLBACK (Advanced Pseudo-LLM Core) ---
+  console.log("🧠 Activating Advanced Fallback Core...");
   const name = user.name.split(' ')[0];
   const msg = message.toLowerCase();
   
-  let responseText = "";
+  const matrix = {
+    activity: {
+      keywords: ["work", "study", "project", "exam", "coding", "task", "homework", "assignment"],
+      validations: [
+        `I hear you, ${name}. Balancing complex technical tasks is a high-cognitive activity.`,
+        `That sounds like a heavy workload, ${name}. Technical burnout is often caused by lack of task-switching.`
+      ],
+      questions: [
+        "Is it the complexity of the code itself, or the sheer volume of tasks?",
+        "Do you feel stuck on one specific logic problem, or just overwhelmed by the deadline?"
+      ],
+      fixes: [
+        "Try the '5-Minute Entry': Commit to just one function or one paragraph for 300 seconds.",
+        "Break the project into 'Atomic Tasks'—actions that take less than 15 minutes each."
+      ]
+    },
+    environment: {
+      keywords: ["space", "room", "noise", "distraction", "desk", "home", "library"],
+      validations: [
+        `Environment is 40% of focus, ${name}. A cluttered space often leads to a cluttered mind.`,
+        `I understand. Sometimes the space we're in starts to feel like a pressure cooker.`
+      ],
+      questions: [
+        "Is the distraction auditory (noise) or visual (clutter)?",
+        "Can you physically move to a different room or even a different chair right now?"
+      ],
+      fixes: [
+        "Clear everything from your physical field of vision except your laptop for 10 minutes.",
+        "Put on brown noise or binaural beats to create an 'Audio Cocoon'."
+      ]
+    },
+    interactions: {
+      keywords: ["people", "someone", "friend", "boss", "teacher", "parent", "team"],
+      validations: [
+        `Social pressure is a major stressor, ${name}. We often internalize others' expectations.`,
+        `That sounds frustrating. Navigating team dynamics or personal expectations is exhausting.`
+      ],
+      questions: [
+        "Are you feeling pressured by a specific person's feedback, or just general expectations?",
+        "Do you feel like you need to say 'no' to something to protect your time?"
+      ],
+      fixes: [
+        "Take a 'Social Pause'—turn off all notifications for 20 minutes to reclaim your agency.",
+        "Draft a quick boundary message, even if you don't send it yet, to clarify your needs."
+      ]
+    }
+  };
 
-  // 1. Validation
-  if (msg.includes("stress") || msg.includes("anxious") || msg.includes("pressure") || msg.includes("study") || msg.includes("project")) {
-    responseText += `That sounds like a lot to manage right now, ${name}. I know the pressure of deadlines can be intense. `;
-  } else {
-    responseText += `Hello ${name}. I'm here to help you navigate your current workload and mental state. `;
-  }
+  // Default Fallback
+  let category = matrix.activity; 
+  if (msg.includes("space") || msg.includes("room") || msg.includes("distract")) category = matrix.environment;
+  if (msg.includes("people") || msg.includes("someone") || msg.includes("friend")) category = matrix.interactions;
 
-  // 2. Contextual Inquiry (AEIOU)
-  if (msg.includes("work") || msg.includes("study") || msg.includes("project")) {
-    responseText += "\n\nTo help you best, **is it the volume of the work itself (Activity) or is your current environment making it hard to concentrate?**";
-  } else if (msg.includes("people") || msg.includes("someone") || msg.includes("friend")) {
-    responseText += "\n\n**Are these interactions adding pressure to your day, or do you feel like you're trying to meet someone else's expectations?**";
-  } else {
-    responseText += "\n\n**Could you tell me a bit more? For example, is there a specific task (Activity) or a tool you're using (Object) that is causing friction?**";
-  }
+  const validation = category.validations[Math.floor(Math.random() * category.validations.length)];
+  const question = category.questions[Math.floor(Math.random() * category.questions.length)];
+  const fix = category.fixes[Math.floor(Math.random() * category.fixes.length)];
 
-  // 3. Micro-Fix
-  responseText += "\n\nIn the meantime, take a **60-second break** to simply stand up and look away from your screen. It resets your visual focus.";
+  const responseText = `${validation}
+
+**${question}**
+
+In the meantime, here is a quick micro-fix: ${fix}
+
+Would you like me to dive deeper into this specific area?`;
 
   return res.json({ response: responseText });
 });
