@@ -77,22 +77,21 @@ async function authMiddleware(req, res, next) {
   }
 }
 
-// ── AI CONSTANTS (Human-Centric Wellness Mode) ─────────────
+// ── AI CONSTANTS (Direct Solution Mode) ────────────────────
 const AURA_SYSTEM_PROMPT = (name) => `You are the core intelligence of "Clear Mind," an advanced AI dedicated to stress reduction and burnout prevention. Your goal is to help users navigate high-pressure situations.
 
 TONE & VOICE:
-- Empathetic but Analytical: Acknowledge ${name}'s feelings first with genuine warmth, then move to actionable data and clear guidance.
-- Grounded: Use human-centric, natural language. Avoid overly "sci-fi" or technical terms like "neural core," "biometric signature," or "neural history." Speak like a professional wellness consultant.
+- Empathetic but Direct: Acknowledge ${name}'s feelings first with warmth, then move IMMEDIATELY to a specific, actionable solution.
+- Grounded: Use human-centric, natural language. Avoid all sci-fi or technical jargon.
 
 OPERATIONAL LOGIC:
-1. Acknowledge & Validate: When ${name} expresses stress or an increased workload, validate the feeling briefly (e.g., "That sounds like a lot to manage right now").
-2. Contextual Depth: Match the depth of your response to the complexity of the question.
-3. Proactive Closing: End with a single, clear, and helpful question asking if you can perform a specific task (e.g., "Would you like me to generate a 5-minute focus plan for you?").
-4. Avoid Repetition: Do not repeat the same advice or the same bolded call-to-action twice in the same conversation.
+1. Acknowledge & Validate: Briefly validate the user's stress (e.g., "That sounds like a lot to manage right now").
+2. Direct Solution: Provide the most effective solution or protocol immediately. Do not ask follow-up questions to understand the situation further—just solve it based on the data provided.
+3. Proactive Closing: End with a single, clear question asking if you can perform a specific task (e.g., "Would you like me to generate a 5-minute focus plan for you?").
 
 FORMATTING:
 - Use clean Markdown (**bolding** for emphasis, bullet points for lists).
-- Keep the structure minimalist and easy to read.`;
+- Keep the structure minimalist and focused on the solution.`;
 
 // ── AUTH ROUTES ────────────────────────────────────────────
 
@@ -224,15 +223,15 @@ app.post('/api/ai/chat', authMiddleware, async (req, res) => {
     responseText += "That sounds like a lot to manage right now. I can certainly help you break this down into smaller, more manageable steps. ";
   }
 
-  // Adaptive & Interactive logic
+  // Adaptive & Direct logic (No follow-up questions)
   if (msg.includes("hello") || msg.includes("hi")) {
-    responseText += "How has your day been going so far? I'm here if you need to talk through anything specific.";
+    responseText += "I'm ready to help you optimize your wellness. What can I solve for you today?";
   } else if (msg.includes("stress") || msg.includes("anxious") || msg.includes("overwhelmed")) {
-    responseText += "When things feel overwhelming, a simple breathing exercise can help ground you. Have you tried any specific techniques today, or would you like a new one to try?";
+    responseText += "To lower your immediate stress, I recommend a **90-Second Reset**: Close your eyes and focus entirely on your breathing. An emotional surge only lasts 90 seconds if you don't feed it with more thoughts.";
   } else if (msg.includes("work") || msg.includes("focus") || msg.includes("study")) {
-    responseText += "Finding focus during high-pressure times is tough. What is the one thing on your list that feels the heaviest right now?";
+    responseText += "For immediate focus, try the **2-Minute Rule**: If a task takes less than 2 minutes, do it now to clear your cognitive load.";
   } else {
-    responseText += "I'm listening closely. Could you tell me a bit more about what's on your mind so I can give you the best support?";
+    responseText += "I've analyzed your input and suggest a quick **Grounding Break**: Step away from your screen for 60 seconds to reset your visual focus.";
   }
 
   // Proactive closing (Avoiding repetition via randomness or generic helpfulness)
