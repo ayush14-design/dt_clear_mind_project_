@@ -63,5 +63,42 @@ window.addEventListener('scroll', () => {
 
 document.addEventListener('DOMContentLoaded', () => {
   initStarsOnPage();
+  applyTranslations();
 });
 
+// i18n Logic
+let currentLanguage = localStorage.getItem('cm_lang') || 'en';
+
+function changeLanguage(lang) {
+  if (translations[lang]) {
+    currentLanguage = lang;
+    localStorage.setItem('cm_lang', lang);
+    applyTranslations();
+  }
+}
+
+function applyTranslations() {
+  if (typeof translations === 'undefined') return;
+  const t = translations[currentLanguage];
+  if (!t) return;
+  
+  const elements = document.querySelectorAll('[data-i18n]');
+  elements.forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if (t[key]) {
+      if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
+        el.placeholder = t[key];
+      } else {
+        // Only replace text nodes if possible, or simple innerHTML
+        // Careful with nested elements
+        el.innerHTML = t[key];
+      }
+    }
+  });
+
+  // Update language select dropdown if present
+  const langSelect = document.getElementById('langSwitcher');
+  if (langSelect) {
+    langSelect.value = currentLanguage;
+  }
+}

@@ -63,11 +63,11 @@
 <nav id="navbar">
   <a href="index.html" class="logo">Clear<span>Mind</span></a>
   <ul class="nav-links">
-    <li><a href="index.html">The OS</a></li>
-    <li><a href="breathing.html">Breath</a></li>
-    <li><a href="sounds.html">Frequencies</a></li>
+    <li><a href="index.html" data-i18n="nav_os">The OS</a></li>
+    <li><a href="breathing.html" data-i18n="nav_breathe">Breath</a></li>
+    <li><a href="sounds.html" data-i18n="nav_sounds">Frequencies</a></li>
   </ul>
-  <button class="nav-cta" style="border-color:var(--rose); color:var(--rose);" onclick="logout()">Logout</button>
+  <button class="nav-cta" style="border-color:var(--rose); color:var(--rose);" onclick="logout()" data-i18n="dash_logout">Logout</button>
 </nav>
 
 <section id="onboarding">
@@ -125,6 +125,7 @@
   <div id="toast-msg" style="font-size:12px; color:#ccc;"></div>
 </div>
 
+<script src="translations.js"></script>
 <script src="shared.js"></script>
 <script>
 let chatHistory = [];

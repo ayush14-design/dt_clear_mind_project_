@@ -318,3 +318,32 @@ footer {
   text-transform: uppercase;
 }
 
+/* --- Language Switcher --- */
+.lang-switcher {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--glass-border);
+  color: var(--white);
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-family: var(--font-sans);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  outline: none;
+  cursor: pointer;
+  transition: var(--transition);
+  margin-left: 20px;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.lang-switcher:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: var(--teal-light);
+}
+
+.lang-switcher option {
+  background: var(--midnight);
+  color: var(--white);
+}
+

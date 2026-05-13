@@ -1,8 +1,9 @@
 # Project Design Record: ClearMind
 
 **Created:** 2026-04-28  
+**Updated:** 2026-05-13
 **Project:** ClearMind — AI-Powered Stress Management Platform  
-**Version:** 1.0.0
+**Version:** 1.1.0
 
 ---
 
@@ -17,7 +18,7 @@ ClearMind is a wellness application designed for working professionals that comb
 Working professionals face chronic stress, burnout, and mental fatigue but lack accessible, personalized tools for immediate relief and long-term wellness management. Traditional meditation apps offer generic content; ClearMind differentiates through:
 - Real-time mood tracking with proactive intervention
 - AI-driven root cause analysis of stress
-- Personalized 7-day wellness roadmaps
+- Personalized 3-day and 7-day wellness roadmaps
 - Science-backed micro-interventions
 
 ---
@@ -42,16 +43,17 @@ Working professionals face chronic stress, burnout, and mental fatigue but lack 
 |-------|------------|
 | Frontend | HTML5, CSS3, Vanilla JavaScript |
 | Backend | Node.js + Express |
-| Storage | JSON file-based database |
-| Authentication | JWT (jsonwebtoken) |
+| Storage | Supabase (PostgreSQL) / Local SQLite fallback |
+| Authentication | JWT (jsonwebtoken) + Supabase |
 | Password Security | bcryptjs |
-| AI Integration | Google Generative AI (Gemini 2.0 Flash) |
+| AI Integration | Google Generative AI (Gemini 3.1/1.5 Models) with local fallback |
 | Styling | Custom CSS with Google Fonts |
+| Deployment | Vercel (Configured via `vercel.json`) |
 
 ### 4.2 File Structure
 
 ```
-DT-project clear mind/
+dt clear mind project/
 ├── index.html          # Landing page + Dashboard
 ├── breathing.html      # Breathing exercises
 ├── sounds.html         # Binaural beats / sound therapy
@@ -63,10 +65,12 @@ DT-project clear mind/
 ├── shared.js           # Shared utilities (auth, stars, toast)
 ├── style.css           # Global styles
 ├── server.js           # Express backend + API routes
+├── database.js         # PostgreSQL/SQLite hybrid database connector
+├── supabase.js         # Supabase client initialization
+├── vercel.json         # Deployment configuration for Vercel
 ├── package.json        # Dependencies
 ├── .env                # Environment variables
-└── data/
-    └── users.json      # User data store
+└── data/               # Local SQLite data directory (fallback)
 ```
 
 ---
@@ -76,6 +80,7 @@ DT-project clear mind/
 ### 5.1 Authentication System
 - **Signup/Login** with email + password
 - **JWT-based sessions** (7-day expiry)
+- **Supabase Integration** for user data persistence
 - **Streak tracking** (resets if day missed)
 - **Industry profiling** for personalization
 
@@ -127,41 +132,29 @@ DT-project clear mind/
 ### 5.4 AI Integration (Aura)
 
 #### Wellness Chat (`/api/ai/chat`)
-- **Model:** Gemini 2.0 Flash
+- **Models:** Gemini 3.1 Flash Lite Preview, 1.5 Flash, 1.5 Pro, etc.
 - **Persona:** Research-grade wellness architect
 - **Capabilities:**
-  - Dynamic stress consultation (not scripted)
+  - Dynamic stress consultation
   - Root cause identification
   - Evidence-based micro-interventions
-  - Internal tools + external resource recommendations (YouTube, books)
-- **Context-aware:** Uses user profile, industry, recent moods
+  - Context-aware proactive CTAs
+- **Fallback:** Direct solution mode when cloud AI is unreachable.
 
 #### Personalized Roadmap (`/api/ai/roadmap`)
-- **Output:** 7-day structured wellness plan
+- **Output:** 3-day or 7-day structured wellness plan
 - **Requirements:**
-  - Diversified solutions (local tools + external resources)
+  - Diversified solutions
   - Biological rationale for each activity
-  - Problem-specific customization
-- **Storage:** Saved to user profile for dashboard access
-
-#### Sleep Stories (`/api/ai/sleep-story`)
-- **Format:** 300-word calming narratives
-- **Themes:** Nature, atmospheric, sensory-focused
-- **Output:** JSON with title + story content
+- **Storage:** Synced to user profile
 
 ### 5.5 Dashboard & Analytics
 
 **Stats Tracked:**
 - Current streak (consecutive days)
 - Total minutes spent in sessions
-- Calm score (derived from latest mood)
-- Recent moods (last 7 entries)
-- Recent sessions (last 10)
-
-**Roadmap Preview:**
-- Displays user's 7-day plan
-- Clickable actions linked to tools
-- External resources open in new tabs
+- Recent search queries
+- Recent journals
 
 ---
 
@@ -172,81 +165,65 @@ DT-project clear mind/
 |----------|--------|------|-------------|
 | `/api/signup` | POST | No | Register new user |
 | `/api/login` | POST | No | Authenticate user |
-| `/api/user/profile` | GET/PUT | Yes | Fetch/update profile |
+| `/api/user/profile` | GET | Yes | Fetch user profile and recent journal |
 
-### Mood Management
+### Content & Logs
 | Endpoint | Method | Auth | Description |
 |----------|--------|------|-------------|
-| `/api/mood` | POST | Yes | Log mood entry |
-| `/api/mood/history` | GET | Yes | Get mood history |
-
-### Sessions & Stats
-| Endpoint | Method | Auth | Description |
-|----------|--------|------|-------------|
-| `/api/session` | POST | Yes | Log wellness session |
-| `/api/stats` | GET | Yes | Get dashboard stats |
+| `/api/journal` | POST | Yes | Log journal entry |
+| `/api/search-history` | GET | Yes | Fetch user's recent search queries |
 
 ### AI Features
 | Endpoint | Method | Auth | Description |
 |----------|--------|------|-------------|
-| `/api/ai/chat` | POST | Yes | Chat with Aura |
-| `/api/ai/roadmap` | POST | Yes | Generate 7-day plan |
-| `/api/ai/sleep-story` | POST | Yes | Generate bedtime story |
+| `/api/ai/chat` | POST | Yes | Chat with Aura and log queries |
+| `/api/ai/roadmap` | POST | Yes | Generate 3-day wellness plan |
 
 ---
 
-## 7. Data Model
+## 7. Data Model (Supabase/PostgreSQL Schema)
 
-### User Object (users.json)
-```json
-{
-  "id": "string",
-  "name": "string",
-  "email": "string",
-  "password": "hashed",
-  "industry": "string",
-  "createdAt": "ISO date",
-  "streak": "number",
-  "totalMinutes": "number",
-  "lastActiveDate": "YYYY-MM-DD",
-  "moods": [MoodEntry],
-  "sessions": [SessionEntry],
-  "roadmap": [RoadmapDay]
-}
-```
+### Users Table (`users`)
+- `id` (TEXT, Primary Key)
+- `name` (TEXT)
+- `email` (TEXT, Unique)
+- `password` (TEXT, Hashed)
+- `industry` (TEXT)
+- `createdAt` (TEXT)
+- `streak` (INTEGER)
+- `totalMinutes` (INTEGER)
+- `lastActiveDate` (TEXT)
+- `roadmap` (TEXT)
 
-### MoodEntry
-```json
-{
-  "emoji": "string",
-  "label": "string",
-  "note": "string",
-  "intensity": "number (1-10)",
-  "sentiment": "positive|negative|neutral",
-  "timestamp": "ISO date"
-}
-```
+### Moods Table (`moods`)
+- `id` (SERIAL/INTEGER, Primary Key)
+- `userId` (TEXT)
+- `emoji` (TEXT)
+- `label` (TEXT)
+- `note` (TEXT)
+- `intensity` (INTEGER)
+- `timestamp` (TEXT)
 
-### SessionEntry
-```json
-{
-  "type": "breathing|binaural|game|meditation",
-  "name": "string",
-  "duration": "seconds",
-  "timestamp": "ISO date"
-}
-```
+### Sessions Table (`sessions`)
+- `id` (SERIAL/INTEGER, Primary Key)
+- `userId` (TEXT)
+- `type` (TEXT)
+- `subtype` (TEXT)
+- `duration` (INTEGER)
+- `timestamp` (TEXT)
 
-### RoadmapDay
-```json
-{
-  "day": "Day 1",
-  "activity": "string",
-  "rationale": "string",
-  "type": "breathing|sounds|games|journaling|youtube|book",
-  "link": "string (optional)"
-}
-```
+### Queries Table (`queries`)
+- `id` (SERIAL/INTEGER, Primary Key)
+- `userId` (TEXT)
+- `query` (TEXT)
+- `timestamp` (TEXT)
+
+### Journals Table (`journals`)
+- `id` (SERIAL/INTEGER, Primary Key)
+- `userId` (TEXT)
+- `content` (TEXT)
+- `prompt` (TEXT)
+- `timestamp` (TEXT)
 
 ---
 
@@ -278,47 +255,23 @@ DT-project clear mind/
 - Passwords hashed with bcrypt (salt rounds: 10)
 - JWT tokens expire after 7 days
 - Authentication middleware protects user routes
-- Environment variables for sensitive config
+- Supabase backend for reliable user data storage
+- Environment variables for sensitive config (Supabase URL/Key, Gemini API Key)
 - CORS enabled for cross-origin requests
 
 ---
 
-## 10. Known Limitations
-
-1. **JSON File Storage:** Not suitable for production scale; should migrate to PostgreSQL/MongoDB
-2. **No Email Verification:** Signup accepts any email format
-3. **Single-Device Sessions:** No multi-device token management
-4. **Fallback AI:** Local responses used when Gemini API key not configured
-5. **No Data Backup:** users.json can be corrupted without backup
-
----
-
-## 11. Future Enhancements
-
-### Short-term
-- [ ] Add push notifications for streak reminders
-- [ ] Implement mood trend charts
-- [ ] Add more breathing patterns
-- [ ] Social sharing for achievements
-
-### Long-term
-- [ ] Mobile app (React Native)
-- [ ] Wearable integration (heart rate data)
-- [ ] Group wellness challenges
-- [ ] Therapist/coach matching
-- [ ] Migration to cloud database
-- [ ] Multi-language support
-
----
-
-## 12. Running the Project
+## 10. Running the Project
 
 ```bash
 # Install dependencies
 npm install
 
-# Configure environment
-# Edit .env and add your Gemini API key
+# Configure environment (.env)
+# SUPABASE_URL=...
+# SUPABASE_KEY=...
+# GEMINI_API_KEY=...
+# JWT_SECRET=...
 
 # Start server
 npm start
@@ -329,20 +282,11 @@ npm start
 
 ---
 
-## 13. Key Personnel
+## 11. Key Personnel
 
 **Developer:** AYUSH  
 **Project Type:** Personal/Portfolio  
-**AI Assistant:** Aura (powered by Gemini 2.0 Flash)
-
----
-
-## 14. References
-
-- Google Generative AI SDK: `@google/generative-ai`
-- Breathing techniques: 4-7-8 method, Box breathing
-- Binaural beats research: Alpha (10Hz), Delta (1-4Hz), Theta (4-8Hz)
-- CBT frameworks for stress management
+**AI Assistant:** Aura (powered by Gemini models)
 
 ---
 
